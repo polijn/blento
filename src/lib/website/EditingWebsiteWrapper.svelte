@@ -27,7 +27,7 @@
 
 <HeadItem collection="com.example.head" />
 
-<Navbar class="bg-base-900 top-auto bottom-2 mx-4 mt-3 max-w-3xl rounded-full px-4 md:mx-auto">
+<Navbar class="dark:bg-base-900 bg-base-100 top-auto bottom-2 mx-4 mt-3 max-w-3xl rounded-full px-4 md:mx-auto">
 	<div class="flex items-center gap-2">
 		<Button size="iconLg" variant="ghost" class="backdrop-blur-none" href={base + '/'}>
 			<span class="sr-only">home</span>

@@ -1,10 +1,14 @@
 <script lang="ts">
-		import { ThemeToggle } from '@foxui/core';
+	import { ThemeToggle } from '@foxui/core';
 
 	import '../app.css';
-	import favicon from '$lib/assets/favicon.svg';
 	import { onMount } from 'svelte';
 	import { initClient } from '$lib/oauth';
+	import { gsap } from 'gsap';
+
+	import { Flip } from 'gsap/Flip';
+
+	gsap.registerPlugin(Flip);
 
 	let { children } = $props();
 
@@ -13,9 +17,6 @@
 	});
 </script>
 
-<svelte:head>
-	<link rel="icon" href={favicon} />
-</svelte:head>
 
 {@render children()}
 
