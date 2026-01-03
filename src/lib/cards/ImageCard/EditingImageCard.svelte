@@ -1,10 +1,10 @@
 <script lang="ts">
-	import EditingCard, { type EditingCardProps } from '../Card/EditingCard.svelte';
+	import BaseEditingCard, { type BaseEditingCardProps } from '../BaseCard/BaseEditingCard.svelte';
 
-	let { item, ...rest }: EditingCardProps = $props();
+	let { item = $bindable(), ...rest }: BaseEditingCardProps = $props();
 </script>
 
-<EditingCard {item} {...rest}>
+<BaseEditingCard {item} {...rest}>
 	{#key item.cardData.image}
 		<img
 			class={[
@@ -27,4 +27,4 @@
 			</span>
 		</a>
 	{/if}
-</EditingCard>
+</BaseEditingCard>

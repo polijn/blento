@@ -134,7 +134,7 @@
 			<p class="text-accent-500 mt-2 text-sm font-medium">{error}</p>
 		{/if}
 
-		<Button type="submit" class="ml-auto mt-2 w-full md:w-auto" disabled={loading}
+		<Button type="submit" class="ml-auto mt-2 w-full lg:w-auto" disabled={loading}
 			>{loading ? 'Loading...' : 'Login'}</Button
 		>
 	</form>

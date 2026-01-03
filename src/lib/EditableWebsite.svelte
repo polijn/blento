@@ -21,6 +21,7 @@
 	import { deleteRecord, putRecord } from './oauth/atproto';
 	import { innerWidth } from 'svelte/reactivity/window';
 	import { TID } from '@atproto/common-web';
+	import EditingCard from './cards/Card/EditingCard.svelte';
 
 	let {
 		handle,
@@ -65,7 +66,7 @@
 		mouseDeltaY: 0
 	});
 
-	let isMobile = $derived((innerWidth.current ?? 1000) < 768);
+	let isMobile = $derived((innerWidth.current ?? 1000) < 1024);
 
 	const getX = (item: Item) => (isMobile ? (item.mobileX ?? item.x) : item.x);
 	const getY = (item: Item) => (isMobile ? (item.mobileY ?? item.y) : item.y);
@@ -73,12 +74,57 @@
 	const getH = (item: Item) => (isMobile ? (item.mobileH ?? item.h) : item.h);
 
 	let maxHeight = $derived(items.reduce((max, item) => Math.max(max, getY(item) + getH(item)), 0));
-	$inspect(maxHeight);
+
+	function newCard(type: 'text' | 'image' | 'link' = 'link') {
+		let newItem: Item = {
+			id: TID.nextStr(),
+			x: 0,
+			y: 0,
+			w: 1,
+			h: 1,
+			mobileH: 2,
+			mobileW: 2,
+			mobileX: 0,
+			mobileY: 0,
+			cardType: type,
+			cardData: {
+				href: 'https://bsky.app/profile/flo-bit.dev'
+			}
+		};
+
+		let foundPosition = false;
+		while (!foundPosition) {
+			for (newItem.x = 0; newItem.x <= 4 - newItem.w; newItem.x++) {
+				let collision = items.find((item) => overlaps(newItem, item));
+				console.log('checking position', newItem.x, newItem.y, 'collision:', collision);
+				if (!collision) {
+					foundPosition = true;
+					break;
+				}
+			}
+			if (!foundPosition) newItem.y += 1;
+		}
+
+		let foundMobilePosition = false;
+		while (!foundMobilePosition) {
+			for (newItem.mobileX = 0; newItem.mobileX <= 4 - newItem.mobileW; newItem.mobileX += 1) {
+				let collision = items.find((item) => overlaps(newItem, item, true));
+
+				if (!collision) {
+					foundMobilePosition = true;
+					break;
+				}
+			}
+			if (!foundMobilePosition) newItem.mobileY! += 2;
+		}
+
+		items = [...items, newItem];
+	}
 </script>
 
 <Profile {handle} {did} />
 
-<div class="md:grid md:grid-cols-3">
+<div class="mx-auto max-w-2xl lg:grid-cols-4 lg:grid lg:max-w-none xl:grid-cols-3">
 	<div></div>
 	<!-- svelte-ignore a11y_no_static_element_interactions -->
 	<div
@@ -140,11 +186,11 @@
 			activeDragElement.element = null;
 			return true;
 		}}
-		class="relative col-span-2 p-8"
+		class="relative col-span-3 xl:col-span-2 py-8 px-2 lg:px-8"
 		style="container-type: inline-size;"
 	>
-		{#each items.toSorted(sortItems) as item}
-			<EditingImageCard
+		{#each items as item, i}
+			<EditingCard
 				ondragstart={(e) => {
 					const target = e.target as HTMLDivElement;
 					activeDragElement.element = target;
@@ -156,7 +202,7 @@
 					activeDragElement.mouseDeltaX = rect.left + margin - e.clientX;
 					activeDragElement.mouseDeltaY = rect.top - e.clientY;
 				}}
-				{item}
+				bind:item={items[i]}
 				ondelete={() => {
 					items = items.filter((it) => it !== item);
 				}}
@@ -196,7 +242,7 @@
 <HeadItem collection="com.example.head" />
 
 <Navbar
-	class="dark:bg-base-900 bg-base-100 top-auto bottom-2 mx-4 mt-3 max-w-3xl rounded-full px-4 md:mx-auto"
+	class="dark:bg-base-900 bg-base-100 top-auto bottom-2 mx-4 mt-3 max-w-3xl rounded-full px-4 lg:mx-auto"
 >
 	<div class="flex items-center gap-2">
 		<Button
@@ -229,51 +275,7 @@
 			variant="ghost"
 			class="backdrop-blur-none"
 			onclick={() => {
-				let newItem: Item = {
-					id: TID.nextStr(),
-					x: 0,
-					y: 0,
-					w: 1,
-					h: 1,
-					mobileH: 2,
-					mobileW: 2,
-					mobileX: 0,
-					mobileY: 0,
-					cardType: 'image',
-					cardData: {
-						image: `https://picsum.photos/seed/1${crypto.randomUUID()}/800/800`,
-						href: 'https://example.com',
-						hrefText: 'Visit example page'
-					}
-				};
-
-				let foundPosition = false;
-				while (!foundPosition) {
-					for (newItem.x = 0; newItem.x <= 4 - newItem.w; newItem.x++) {
-						let collision = items.find((item) => overlaps(newItem, item));
-						console.log('checking position', newItem.x, newItem.y, 'collision:', collision);
-						if (!collision) {
-							foundPosition = true;
-							break;
-						}
-					}
-					if (!foundPosition) newItem.y += 1;
-				}
-
-				let foundMobilePosition = false;
-				while (!foundMobilePosition) {
-					for (newItem.mobileX = 0; newItem.mobileX <= 4 - newItem.mobileW; newItem.mobileX += 1) {
-						let collision = items.find((item) => overlaps(newItem, item, true));
-
-						if (!collision) {
-							foundMobilePosition = true;
-							break;
-						}
-					}
-					if (!foundMobilePosition) newItem.mobileY! += 2;
-				}
-
-				items = [...items, newItem];
+				newCard();
 			}}
 		>
 			<svg
@@ -309,6 +311,7 @@
 
 						if (!originalItem) {
 							console.log('updated or new item', item);
+							item.updatedAt = new Date().toISOString();
 							await putRecord({ collection: 'com.example.bento', rkey: item.id, record: item });
 						}
 					}

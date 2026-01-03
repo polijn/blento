@@ -103,7 +103,7 @@
 			{/if}
 
 			{#if yesButton || noButton}
-				<div class="flex flex-col items-stretch justify-end gap-2 md:flex-row md:items-center">
+				<div class="flex flex-col items-stretch justify-end gap-2 lg:flex-row lg:items-center">
 					{#if yesButton}
 						<Button
 							bind:ref={yesButtonRef}

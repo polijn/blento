@@ -1,10 +1,10 @@
 <script lang="ts">
-	import Card, { type CardProps } from '../Card/Card.svelte';
+	import BaseCard, { type BaseCardProps } from '../BaseCard/BaseCard.svelte';
 
-	let { item, ...rest }: CardProps = $props();
+	let { item, ...rest }: BaseCardProps = $props();
 </script>
 
-<Card {item} {...rest}>
+<BaseCard {item} {...rest}>
 	{#key item.cardData.image}
 		<img
 			class={[
@@ -46,4 +46,4 @@
 			</div>
 		</a>
 	{/if}
-</Card>
+</BaseCard>

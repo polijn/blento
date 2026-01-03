@@ -58,6 +58,7 @@
 		"bits-ui": "^2.14.4",
 		"clsx": "^2.1.1",
 		"gsap": "^3.14.2",
+		"link-preview-js": "^4.0.0",
 		"marked": "^15.0.11",
 		"svelte-sonner": "^1.0.7",
 		"tailwind-merge": "^3.4.0",

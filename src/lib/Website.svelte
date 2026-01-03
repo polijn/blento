@@ -1,30 +1,36 @@
 <script lang="ts">
-	import ImageCard from './cards/ImageCard/ImageCard.svelte';
-	import { sortItems } from './helper';
+	import Card from './cards/Card/Card.svelte';
 	import Profile from './Profile.svelte';
+	import { sortItems } from './helper';
 	import type { Item } from './types';
+	import { innerWidth } from 'svelte/reactivity/window';
 
-	let { handle, did, items }: { handle: string; did: string, items: Item[] } = $props();
+	let { handle, did, items }: { handle: string; did: string; items: Item[] } = $props();
 
-	let maxHeight = $derived(items.reduce((max, item) => Math.max(max, item.y + item.h), 0));
+	let isMobile = $derived((innerWidth.current ?? 1000) < 1024);
+
+	let maxHeight = $derived(
+		items.reduce(
+			(max, item) => Math.max(max, isMobile ? item.mobileY + item.mobileH : item.y + item.h),
+			0
+		)
+	);
 
 	let container: HTMLDivElement | undefined = $state();
 </script>
 
 <Profile {handle} {did} />
 
-<div class="md:grid md:grid-cols-3">
+<div class="mx-auto max-w-2xl lg:grid lg:max-w-none lg:grid-cols-4 xl:grid-cols-3">
 	<div></div>
 	<div
 		bind:this={container}
-		class="relative col-span-2 p-8"
+		class="relative col-span-3 px-2 py-8 lg:px-8 xl:col-span-2"
 		style="container-type: inline-size;"
 	>
 		{#each items.toSorted(sortItems) as item}
-			<ImageCard
-				{item}
-			/>
+			<Card {item} />
 		{/each}
-		<div style="height: {((maxHeight) / 4) * 100}cqw;"></div>
+		<div style="height: {(maxHeight / 4) * 100}cqw;"></div>
 	</div>
 </div>

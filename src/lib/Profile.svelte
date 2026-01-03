@@ -5,7 +5,7 @@
 	let { handle, did }: { handle: string; did: string } = $props();
 </script>
 
-<div class="flex px-12 py-24 md:fixed md:h-screen md:w-1/3">
+<div class="mx-auto flex max-w-2xl px-10 lg:px-12 pt-16 lg:pt-24 pb-8 lg:fixed lg:h-screen lg:w-1/4 xl:w-1/3 lg:max-w-none">
 	<div class="flex flex-col gap-4">
 		<SingleRecord collection="app.bsky.actor.profile" rkey="self">
 			{#snippet child(data)}
@@ -16,7 +16,7 @@
 						data.value.avatar.ref.$link}
 				/>
 				<img
-					class="rounded-fulll size-44 rounded-full"
+					class="rounded-fulll size-32 lg:size-44 rounded-full"
 					src={'https://cdn.bsky.app/img/avatar/plain/' + did + '/' + data.value.avatar.ref.$link}
 					alt=""
 				/>

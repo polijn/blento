@@ -15,4 +15,6 @@ export type Item = {
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	cardData: any;
+
+	updatedAt?: string;
 };
