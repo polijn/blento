@@ -54,7 +54,7 @@
 	let isMobile = $derived(showingMobileView || (innerWidth.current ?? 1000) < 1024);
 
 	setIsMobile(() => isMobile);
-	
+
 	// svelte-ignore state_referenced_locally
 	setDidContext(did);
 
@@ -262,7 +262,7 @@
 			}}
 			class="@container/grid relative col-span-3 px-2 py-8 @5xl/wrapper:px-8 @7xl/wrapper:col-span-2"
 		>
-			{#each items as item, i}
+			{#each items as item, i (item.id)}
 				<EditingCard
 					ondragstart={(e) => {
 						const target = e.target as HTMLDivElement;
