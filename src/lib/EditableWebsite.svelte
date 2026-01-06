@@ -325,7 +325,7 @@
 	</div>
 </div>
 
-<Sidebar mobileOnly mobileClasses="lg:block">
+<Sidebar mobileOnly mobileClasses="lg:block p-4">
 	{#each sidebarItems as cardDef}
 		<cardDef.sidebarComponent onclick={() => newCard(cardDef.type)} />
 	{/each}
@@ -404,24 +404,17 @@
 				</svg>
 			</Button>
 
-			{#if dev || handle === 'flo-bit.dev'}
-				<Button
-					size="iconLg"
-					variant="ghost"
-					class="backdrop-blur-none"
-					popovertarget="mobile-menu"
+			<Button size="iconLg" variant="ghost" class="backdrop-blur-none" popovertarget="mobile-menu">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 24 24"
+					stroke-width="1.5"
+					stroke="currentColor"
 				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor"
-					>
-						<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-					</svg>
-				</Button>
-			{/if}
+					<path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+				</svg>
+			</Button>
 
 			<!-- for special stuff -->
 			{#if handle === 'blento.app'}
