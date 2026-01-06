@@ -33,9 +33,9 @@
 	 * https://developers.cloudflare.com/workers/configuration/secrets/
 	 */
 	"vars": {
-		"PUBLIC_HANDLE": "blento.app",
-		"PUBLIC_IS_SELFHOSTED": "",
-		"PUBLIC_DOMAIN": "https://blento.app"
+		"PUBLIC_HANDLE": "polijn.bsky.social",
+		"PUBLIC_IS_SELFHOSTED": "true",
+		"PUBLIC_DOMAIN": "blento.polijn.com"
 	}
 	/**
 	 * Service Bindings (communicate between multiple Workers)
