@@ -35,7 +35,7 @@
 	"vars": {
 		"PUBLIC_HANDLE": "polijn.bsky.social",
 		"PUBLIC_IS_SELFHOSTED": "true",
-		"PUBLIC_DOMAIN": "blento.polijn.com"
+		"PUBLIC_DOMAIN": "https://blento.polijn.com"
 	}
 	/**
 	 * Service Bindings (communicate between multiple Workers)
