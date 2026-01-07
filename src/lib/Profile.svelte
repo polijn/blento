@@ -22,28 +22,31 @@
 		`<a target="_blank" href="${href}" title="${title}">${text}</a>`;
 </script>
 
+<Head
+	favicon={'https://cdn.bsky.app/img/avatar/plain/' + did + '/' + profileData?.avatar.ref.$link}
+	title={(profileData?.displayName || handle) + "'s blento"}
+/>
+
 <!-- lg:fixed lg:h-screen lg:w-1/4 lg:max-w-none lg:px-12 lg:pt-24 xl:w-1/3 -->
 <div
-	class="mx-auto flex max-w-2xl flex-col justify-between px-8 pt-16 pb-8 @5xl/wrapper:fixed @5xl/wrapper:h-screen @5xl/wrapper:w-1/4 @5xl/wrapper:max-w-none @5xl/wrapper:px-12 @5xl/wrapper:pt-24 @7xl/wrapper:w-1/3"
+	class="mx-auto flex max-w-2xl flex-col justify-between px-8 @5xl/wrapper:fixed @5xl/wrapper:h-screen @5xl/wrapper:w-1/4 @5xl/wrapper:max-w-none @5xl/wrapper:px-12 @7xl/wrapper:w-1/3"
 >
-	<div class="flex flex-col gap-4">
-		<Head
-			favicon={'https://cdn.bsky.app/img/avatar/plain/' + did + '/' + profileData?.avatar.ref.$link}
-			title={(profileData?.displayName || handle) + "'s blento"}
-		/>
+	<div class="flex flex-col gap-4 pt-16 pb-8 @5xl/wrapper:h-screen @5xl/wrapper:pt-24">
 		<img
 			class="rounded-fulll size-32 rounded-full @5xl/wrapper:size-44"
 			src={'https://cdn.bsky.app/img/avatar/plain/' + did + '/' + profileData?.avatar.ref.$link}
 			alt=""
 		/>
-		<div class="line-clamp-2 text-4xl font-bold wrap-anywhere">
+		<div class="text-4xl font-bold wrap-anywhere">
 			{profileData?.displayName || handle}
 		</div>
 
-		<div
-			class="text-base-600 dark:text-base-400 prose dark:prose-invert prose-a:text-accent-500 prose-a:no-underline line-clamp-3"
-		>
-			{@html marked.parse(profileData.description ?? '', { renderer })}
+		<div class="scrollbar flex-grow overflow-y-scroll px-4 -mx-4">
+			<div
+				class="text-base-600 dark:text-base-400 prose dark:prose-invert prose-a:text-accent-500 prose-a:no-underline"
+			>
+				{@html marked.parse(profileData.description ?? '', { renderer })}
+			</div>
 		</div>
 
 		{#if showEditButton && client.isLoggedIn && client.profile?.did === did}
@@ -103,13 +106,57 @@
 				</div>
 			{/if}
 		{/if}
-	</div>
-	<div class="hidden text-xs font-light @5xl/wrapper:block">
-		made with <a
-			href="https://blento.app"
-			target="_blank"
-			class="hover:text-accent-600 dark:hover:text-accent-400 font-medium transition-colors duration-200"
-			>blento</a
-		>
+		<div class="hidden text-xs font-light @5xl/wrapper:flex">
+			made with <a
+				href="https://blento.app"
+				target="_blank"
+				class="hover:text-accent-600 dark:hover:text-accent-400 font-medium transition-colors duration-200"
+				>blento</a
+			>
+		</div>
 	</div>
 </div>
+
+<style>
+	.scrollbar::-webkit-scrollbar-track {
+		background-color: transparent;
+	}
+
+	@supports (scrollbar-width: auto) {
+		.scrollbar {
+			scrollbar-color: var(--color-base-400) transparent;
+			scrollbar-width: thin;
+		}
+
+		:global(.dark .scrollbar) {
+			scrollbar-color: var(--color-base-800) transparent;
+		}
+	}
+
+	@supports not (scrollbar-width: auto) {
+		:global(.scrollbar::-webkit-scrollbar) {
+			width: 14px;
+			height: 14px;
+		}
+	}
+
+	.scrollbar::-webkit-scrollbar-thumb {
+		background-color: var(--color-base-400);
+		border-radius: 20px;
+		border: 4px solid transparent;
+		background-clip: content-box;
+	}
+
+	.scrollbar::-webkit-scrollbar-thumb:hover {
+		background-color: var(--color-base-500);
+	}
+
+	/* Dark mode rules */
+	:global(.dark .scrollbar::-webkit-scrollbar-thumb) {
+		background-color: var(--color-base-800);
+	}
+
+	:global(.dark .scrollbar::-webkit-scrollbar-thumb:hover) {
+		background-color: var(--color-base-700);
+	}
+</style>

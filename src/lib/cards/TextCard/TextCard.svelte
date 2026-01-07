@@ -11,7 +11,7 @@
 
 <BaseCard {item} {...rest}>
 	<div
-		class="prose dark:prose-invert prose-base prose-a:no-underline prose-a:text-accent-600 dark:prose-a:text-accent-400 prose-sm prose-p:first:mt-0 prose-p:last:mb-0 m-1 rounded-md p-1 break-words"
+		class="prose dark:prose-invert prose-base prose-a:no-underline prose-a:text-accent-600 dark:prose-a:text-accent-400 prose-sm prose-p:first:mt-0 prose-p:last:mb-0 m-1 rounded-md p-1 break-words overflow-y-scroll max-h-full"
 	>
 		{@html marked.parse(item.cardData.text ?? '', { renderer })}
 	</div>
