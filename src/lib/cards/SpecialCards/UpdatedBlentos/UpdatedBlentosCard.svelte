@@ -7,7 +7,10 @@
 
 	let { item }: ContentComponentProps = $props();
 
-	const recentRecords = getAdditionalUserData().recentRecords;
+
+	const data = getAdditionalUserData();
+	// svelte-ignore state_referenced_locally
+	const recentRecords = (data[item.cardType] as any);
 
 	let profiles: ProfileViewDetailed[] = $state([]);
 

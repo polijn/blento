@@ -36,4 +36,7 @@ export type CardDefinition = {
 
 	sidebarComponent?: Component<SidebarComponentProps>;
 	sidebarButtonText?: string;
+
+	loadData?: (items: Item[], { did, handle }: { did: string; handle: string }) => Promise<unknown>;
+	dataKey?: string;
 };

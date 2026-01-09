@@ -4,8 +4,10 @@
 	import { setIsMobile, sortItems } from './helper';
 	import type { Item } from './types';
 	import { innerWidth } from 'svelte/reactivity/window';
-	import { setDidContext } from './website/context';
+	import { setDidContext, setHandleContext } from './website/context';
 	import BaseCard from './cards/BaseCard/BaseCard.svelte';
+	import { onMount } from 'svelte';
+	import { describeRepo } from './oauth/atproto';
 
 	let { handle, did, items, data }: { handle: string; did: string; items: Item[]; data: any } =
 		$props();
@@ -16,6 +18,9 @@
 
 	// svelte-ignore state_referenced_locally
 	setDidContext(did);
+	// svelte-ignore state_referenced_locally
+	setHandleContext(handle);
+
 
 	let maxHeight = $derived(
 		items.reduce(
@@ -25,6 +30,10 @@
 	);
 
 	let container: HTMLDivElement | undefined = $state();
+
+	onMount(() => {
+		describeRepo({did});
+	});
 </script>
 
 <div class="@container/wrapper relative w-screen">

@@ -1,3 +1,4 @@
+import { ATProtoCollectionsCardDefinition } from './ATProtoCollectionsCard';
 import { BlueskyPostCardDefinition } from './BlueskyPostCard';
 import { EmbedCardDefinition } from './EmbedCard';
 import { ImageCardDefinition } from './ImageCard';
@@ -19,7 +20,8 @@ export const AllCardDefinitions = [
 	LivestreamCardDefitition,
 	LivestreamEmbedCardDefitition,
 	EmbedCardDefinition,
-	MapCardDefinition
+	MapCardDefinition,
+	ATProtoCollectionsCardDefinition
 ] as const;
 
 export const CardDefinitionsByType = AllCardDefinitions.reduce(

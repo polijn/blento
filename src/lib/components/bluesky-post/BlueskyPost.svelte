@@ -30,7 +30,7 @@
 {/snippet}
 
 {#if postData}
-	<Post data={postData} logo={showLogo ? logo : undefined} {...restProps}>
+	<Post data={postData} showBookmark={false} logo={showLogo ? logo : undefined} {...restProps}>
 		{@render children?.()}
 	</Post>
 {/if}

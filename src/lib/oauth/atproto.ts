@@ -195,3 +195,15 @@ export async function uploadImage({
 
 	return blobInfo;
 }
+
+export async function describeRepo({ did }: { did: string }) {
+	const pds = await getPDS(did);
+
+	const agent = new AtpBaseClient({ service: pds });
+
+	const repo = await agent.com.atproto.repo.describeRepo({
+		repo: did
+	});
+
+	return repo;
+}

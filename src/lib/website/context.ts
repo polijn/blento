@@ -11,6 +11,7 @@ export const [getUpdateRecordFunctionsContext, setUpdateRecordFunctionsContext] 
 	createContext<UpdateRecordFunction[]>();
 
 export const [getDidContext, setDidContext] = createContext<string>();
+export const [getHandleContext, setHandleContext] = createContext<string>();
 
 export const [getDataContext, setDataContext] = createContext<DownloadedData>();
 

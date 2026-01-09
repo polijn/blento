@@ -23,7 +23,7 @@
 	import { tick, type Component } from 'svelte';
 	import type { CreationModalComponentProps } from './cards/types';
 	import { dev } from '$app/environment';
-	import { setDidContext } from './website/context';
+	import { setDidContext, setHandleContext } from './website/context';
 	import BaseEditingCard from './cards/BaseCard/BaseEditingCard.svelte';
 
 	let {
@@ -67,6 +67,8 @@
 
 	// svelte-ignore state_referenced_locally
 	setDidContext(did);
+	// svelte-ignore state_referenced_locally
+	setHandleContext(handle);
 
 	const getX = (item: Item) => (isMobile ? (item.mobileX ?? item.x) : item.x);
 	const getY = (item: Item) => (isMobile ? (item.mobileY ?? item.y) : item.y);

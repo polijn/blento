@@ -9,6 +9,8 @@ import type { Record as ListRecord } from '@atproto/api/dist/client/types/com/at
 import { data } from './data';
 import { AtpBaseClient } from '@atproto/api';
 import { env } from '$env/dynamic/private';
+import { CardDefinitionsByType } from '$lib/cards';
+import type { Item } from '$lib/types';
 
 export async function loadData(handle: string) {
 	const did = await resolveHandle({ handle });
@@ -62,77 +64,42 @@ export async function loadData(handle: string) {
 	}
 
 	const cardTypes = new Set(
-		Object.values(downloadedData['app.blento.card']).map((v) => v.value.cardType)
+		Object.values(downloadedData['app.blento.card']).map((v) => v.value.cardType) as string[]
 	);
 
-	let recentRecords;
-	if (cardTypes.has('updatedBlentos')) {
-		try {
-			// https://ufos-api.microcosm.blue/records?collection=app.blento.card
-			const response = await fetch(
-				'https://ufos-api.microcosm.blue/records?collection=app.blento.card'
+	const cardTypesArray = Array.from(cardTypes);
+
+	const additionDataPromises: Record<string, Promise<unknown>> = {};
+
+	const handleAndDid = { did, handle };
+
+	for (const cardType of cardTypesArray) {
+		const cardDef = CardDefinitionsByType[cardType];
+
+		if (cardDef.loadData) {
+			additionDataPromises[cardType] = cardDef.loadData(
+				Object.values(downloadedData['app.blento.card'])
+					.filter((v) => cardType == v.value.cardType)
+					.map((v) => v.value) as Item[],
+				handleAndDid
 			);
-			recentRecords = await response.json();
-		} catch (error) {
-			console.error('failed to fetch recent records', error);
 		}
 	}
 
-	let recentPosts;
+	await Promise.all(Object.values(additionDataPromises));
 
-	if (cardTypes.has('latestPost')) {
+	const additionalData: Record<string, unknown> = {};
+	for (const [key, value] of Object.entries(additionDataPromises)) {
 		try {
-			const agent = new AtpBaseClient({ service: 'https://api.bsky.app' });
-			const authorFeed = await agent.app.bsky.feed.getAuthorFeed({
-				actor: did,
-				filter: 'posts_no_replies',
-				limit: 2
-			});
-			console.log(authorFeed.data);
-			recentPosts = JSON.parse(JSON.stringify(authorFeed.data));
+			additionalData[key] = await value;
 		} catch (error) {
-			console.error('failed to fetch recent posts', error);
+			console.log('error loading', key, error);
 		}
 	}
-
-	let metrics;
-	// try {
-	// 	const endAt = Date.now();
-
-	// 	const startAt = new Date();
-	// 	startAt.setFullYear(startAt.getFullYear() - 1);
-
-	// 	const params = new URLSearchParams({
-	// 		startAt: startAt.getTime().toString(),
-	// 		endAt: endAt.toString(),
-	// 		unit: 'year',
-	// 		timezone: 'America/Los_Angeles',
-	// 		path: '/' + handle
-	// 	});
-
-	// 	const url = `https://umami-wispy-dream-8048.fly.dev/api/websites/${env.ANALYTICS_WEBSITE_ID}/stats?${params}`;
-
-	// 	console.log(url);
-	// 	const metricsResponse = await fetch(url, {
-	// 		method: 'GET',
-	// 		headers: {
-	// 			Authorization: 'Bearer ' + env.ANALYTICS_TOKEN
-	// 		}
-	// 	});
-
-	// 	metrics = await metricsResponse.json();
-	// 	console.log(metrics);
-	// } catch (error) {
-	// 	console.error(error);
-	// }
 
 	return {
 		did,
 		data: JSON.parse(JSON.stringify(downloadedData)) as DownloadedData,
-		additionalData: {
-			recentRecords,
-			recentPosts,
-			metrics
-		}
+		additionalData
 	};
 }

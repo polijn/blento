@@ -1,4 +1,6 @@
 import { client } from '$lib/oauth';
+import { listRecords } from '$lib/oauth/atproto';
+import { getImageBlobUrl } from '$lib/website/utils';
 import EmbedCard from '../EmbedCard/EmbedCard.svelte';
 import type { CardDefinition } from '../types';
 import LivestreamCard from './LivestreamCard.svelte';
@@ -14,6 +16,55 @@ export const LivestreamCardDefitition = {
 		card.h = 1;
 		card.mobileH = 2;
 		card.mobileW = 4;
+	},
+	loadData: async (items, { did }) => {
+		const records = await listRecords({ did, collection: 'place.stream.livestream', limit: 3 });
+		console.log(records);
+
+		let latestLivestream:
+			| {
+					createdAt: string;
+					title: string;
+					thumb?: string;
+					href: string;
+					online?: boolean;
+			  }
+			| undefined;
+		const values = Object.values(records);
+		if (values?.length > 0) {
+			const latest = JSON.parse(JSON.stringify(values[0]));
+			console.log(latest);
+
+			latestLivestream = {
+				createdAt: latest.value.createdAt,
+				title: latest.value.title as string,
+				thumb: getImageBlobUrl({ link: latest.value.thumb?.ref.$link, did }),
+				href: latest.value.canonicalUrl || latest.value.url,
+				online: undefined
+			};
+		}
+
+		if (latestLivestream) {
+			try {
+				const segmentsResponse = await fetch(
+					'https://stream.place/xrpc/place.stream.live.getSegments?userDID=' +
+						encodeURIComponent(did)
+				);
+				const segments = await segmentsResponse.json();
+
+				const lastSegment = segments.segments[0];
+				const startTime = new Date(lastSegment.record.startTime).getTime();
+
+				const FIVE_MINUTES = 5 * 60 * 1000;
+				const now = Date.now();
+
+				latestLivestream.online = now - startTime <= FIVE_MINUTES;
+			} catch (error) {
+				console.error(error);
+			}
+		}
+
+		return latestLivestream;
 	}
 } as CardDefinition & { type: 'latestLivestream' };
 

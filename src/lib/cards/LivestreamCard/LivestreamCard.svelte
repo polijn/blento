@@ -1,72 +1,58 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import Icon from './Icon.svelte';
-	import { getDidContext } from '$lib/website/context';
+	import { getDidContext, getHandleContext } from '$lib/website/context';
 	import { listRecords } from '$lib/oauth/atproto';
-	import { getIsMobile } from '$lib/helper';
+	import { getAdditionalUserData, getIsMobile } from '$lib/helper';
 	import type { ContentComponentProps } from '../types';
 	import { getImageBlobUrl } from '$lib/website/utils';
 	import { RelativeTime } from '@foxui/time';
 	import { online } from 'svelte/reactivity/window';
 	import { Badge } from '@foxui/core';
+	import { CardDefinitionsByType } from '..';
 
 	let { item = $bindable() }: ContentComponentProps = $props();
-
-	let did = getDidContext();
 
 	let isMobile = getIsMobile();
 
 	let isLoaded = $state(false);
 
-	let latestLivestream:
-		| {
-				createdAt: string;
-				title: string;
-				thumb?: string;
-				href: string;
-				online?: boolean;
-		  }
-		| undefined = $state();
+	const data = getAdditionalUserData();
+	// svelte-ignore state_referenced_locally
+	let latestLivestream = $state(
+		data[item.cardType] as
+			| {
+					createdAt: string;
+					title: string;
+					thumb?: string;
+					href: string;
+					online?: boolean;
+			  }
+			| undefined
+	);
+
+	let did = getDidContext();
+	let handle = getHandleContext();
 
 	onMount(async () => {
-		const records = await listRecords({ did, collection: 'place.stream.livestream', limit: 3 });
-		console.log(records);
+		if (!latestLivestream) {
+			latestLivestream = (await CardDefinitionsByType[item.cardType]?.loadData?.([], {
+				did,
+				handle
+			})) as
+				| {
+						createdAt: string;
+						title: string;
+						thumb?: string;
+						href: string;
+						online?: boolean;
+				  }
+				| undefined;
 
-		const values = Object.values(records);
-		if (values?.length > 0) {
-			const latest = JSON.parse(JSON.stringify(values[0]));
-			console.log(latest);
+			data[item.cardType] = latestLivestream;
 
-			latestLivestream = {
-				createdAt: latest.value.createdAt,
-				title: latest.value.title as string,
-				thumb: getImageBlobUrl({ link: latest.value.thumb?.ref.$link, did }),
-				href: latest.value.canonicalUrl || latest.value.url,
-				online: undefined
-			};
+			isLoaded = true;
 		}
-
-		if (latestLivestream) {
-			try {
-				const segmentsResponse = await fetch(
-					'https://stream.place/xrpc/place.stream.live.getSegments?userDID=' +
-						encodeURIComponent(did)
-				);
-				const segments = await segmentsResponse.json();
-
-				const lastSegment = segments.segments[0];
-				const startTime = new Date(lastSegment.record.startTime).getTime();
-
-				const FIVE_MINUTES = 5 * 60 * 1000;
-				const now = Date.now();
-
-				latestLivestream.online = now - startTime <= FIVE_MINUTES;
-			} catch (error) {
-				console.error(error);
-			}
-		}
-
-		isLoaded = true;
 	});
 </script>
 
