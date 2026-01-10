@@ -8,8 +8,6 @@
 	const data = getAdditionalUserData();
 	// svelte-ignore state_referenced_locally
 	const feed = (data[item.cardType] as any).feed;
-
-	$inspect(feed);
 </script>
 
 <div class="flex h-full flex-col justify-center-safe overflow-y-scroll p-4">

@@ -3,7 +3,6 @@ import type { PostData, PostEmbed } from '../post';
 import type { PostView } from '@atproto/api/dist/client/types/app/bsky/feed/defs';
 
 function blueskyEmbedTypeToEmbedType(type: string) {
-	console.log(type);
 	switch (type) {
 		case 'app.bsky.embed.external#view':
 		case 'app.bsky.embed.external':
@@ -23,7 +22,6 @@ export function blueskyPostToPostData(
 	data: PostView,
 	baseUrl: string = 'https://bsky.app'
 ): PostData {
-	console.log(data);
 	const post = data;
 	// const reason = data.reason;
 	// const reply = data.reply?.parent;

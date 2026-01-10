@@ -19,7 +19,6 @@ export const LivestreamCardDefitition = {
 	},
 	loadData: async (items, { did }) => {
 		const records = await listRecords({ did, collection: 'place.stream.livestream', limit: 3 });
-		console.log(records);
 
 		let latestLivestream:
 			| {
@@ -33,7 +32,6 @@ export const LivestreamCardDefitition = {
 		const values = Object.values(records);
 		if (values?.length > 0) {
 			const latest = JSON.parse(JSON.stringify(values[0]));
-			console.log(latest);
 
 			latestLivestream = {
 				createdAt: latest.value.createdAt,

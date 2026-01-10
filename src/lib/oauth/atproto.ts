@@ -109,16 +109,6 @@ export async function putRecord({
 }) {
 	if (!client.profile || !client.rpc) throw new Error('No profile or rpc');
 
-	console.log('updating record', {
-		data: {
-			collection,
-			repo: client.profile.did,
-			rkey,
-			record: {
-				...record
-			}
-		}
-	});
 	const response = await client.rpc.call('com.atproto.repo.putRecord', {
 		data: {
 			collection,

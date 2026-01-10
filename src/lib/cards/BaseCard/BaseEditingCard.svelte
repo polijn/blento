@@ -38,7 +38,7 @@
 	} & WithElementRef<HTMLAttributes<HTMLDivElement>>;
 
 	let {
-		item,
+		item = $bindable(),
 		children,
 		ref = $bindable(null),
 		onsetsize,

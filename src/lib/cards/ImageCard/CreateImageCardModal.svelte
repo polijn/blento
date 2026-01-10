@@ -47,9 +47,6 @@
 					}
 				}
 
-				console.log('Width:', width);
-				console.log('Height:', height);
-
 				// Create a canvas to draw the image
 				const canvas = document.createElement('canvas');
 				canvas.width = width;

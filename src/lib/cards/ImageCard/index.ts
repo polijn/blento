@@ -13,7 +13,6 @@ export const ImageCardDefinition = {
 			alt: '',
 			href: ''
 		};
-		console.log('adding new card', card);
 	},
 	creationModalComponent: CreateImageCardModal,
 	upload: async (item) => {

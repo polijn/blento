@@ -24,7 +24,16 @@ export async function loadData(
 		const cachedResult = await platform?.env?.USER_DATA_CACHE?.get(handle);
 
 		if (cachedResult) {
-			console.log('using cached result for handle', handle);
+			const result = JSON.parse(cachedResult);
+			const update = result.updatedAt;
+			const timePassed = (Date.now() - update) / 1000;
+			console.log(
+				'using cached result for handle',
+				handle,
+				'last update',
+				timePassed,
+				'seconds ago'
+			);
 			return JSON.parse(cachedResult);
 		}
 	}
@@ -87,7 +96,7 @@ export async function loadData(
 
 	const additionDataPromises: Record<string, Promise<unknown>> = {};
 
-	const handleAndDid = { did, handle };
+	const loadOptions = { did, handle, platform };
 
 	for (const cardType of cardTypesArray) {
 		const cardDef = CardDefinitionsByType[cardType];
@@ -97,7 +106,7 @@ export async function loadData(
 				Object.values(downloadedData['app.blento.card'])
 					.filter((v) => cardType == v.value.cardType)
 					.map((v) => v.value) as Item[],
-				handleAndDid
+				loadOptions
 			);
 		}
 	}

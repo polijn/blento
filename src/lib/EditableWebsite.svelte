@@ -172,6 +172,9 @@
 
 		isSaving = false;
 
+		fetch('/' + handle + '/api/refreshData');
+		console.log('refreshing data');
+
 		toast('Saved', {
 			description: 'Your website has been saved!'
 		});

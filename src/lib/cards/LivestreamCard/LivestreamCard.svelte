@@ -38,7 +38,8 @@
 		if (!latestLivestream) {
 			latestLivestream = (await CardDefinitionsByType[item.cardType]?.loadData?.([], {
 				did,
-				handle
+				handle,
+				platform: undefined
 			})) as
 				| {
 						createdAt: string;
