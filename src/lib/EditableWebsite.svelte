@@ -8,10 +8,12 @@
 	import {
 		cardsEqual,
 		clamp,
+		compactItems,
 		fixCollisions,
 		setCanEdit,
 		setIsMobile,
-		setPositionOfNewItem
+		setPositionOfNewItem,
+		simulateFinalPosition
 	} from './helper';
 	import Profile from './Profile.svelte';
 	import type { Item } from './types';
@@ -187,6 +189,37 @@
 	);
 
 	let showSettings = $state(false);
+
+	let debugPoint = $state({ x: 0, y: 0 });
+
+	function getDragXY(
+		e: DragEvent & {
+			currentTarget: EventTarget & HTMLDivElement;
+		}
+	) {
+		if (!container) return;
+
+		const x = e.clientX + activeDragElement.mouseDeltaX;
+		const y = e.clientY + activeDragElement.mouseDeltaY;
+
+		const rect = container.getBoundingClientRect();
+
+		debugPoint.x = x - rect.left;
+		debugPoint.y = y - rect.top + margin;
+		console.log(rect.top);
+
+		let gridX = clamp(
+			Math.floor(((x - rect.left) / rect.width) * 4),
+			0,
+			4 - (activeDragElement.w ?? 0)
+		);
+		let gridY = Math.max(Math.round(((y - rect.top + margin) / (rect.width - margin)) * 4), 0);
+		if (isMobile) {
+			gridX = Math.floor(gridX / 2) * 2;
+			gridY = Math.floor(gridY / 2) * 2;
+		}
+		return { x: gridX, y: gridY };
+	}
 </script>
 
 {#if !dev}
@@ -234,52 +267,40 @@
 			bind:this={container}
 			ondragover={(e) => {
 				e.preventDefault();
-				if (!container) return;
 
-				const x = e.clientX + activeDragElement.mouseDeltaX;
-				const y = e.clientY + activeDragElement.mouseDeltaY;
-				const rect = container.getBoundingClientRect();
+				const cell = getDragXY(e);
+				if (!cell) return;
 
-				let gridX = clamp(
-					Math.floor(((x - rect.left) / rect.width) * 4),
-					0,
-					4 - (activeDragElement.w ?? 0)
-				);
-				let gridY = Math.max(Math.floor(((y - rect.top) / rect.width) * 4), 0);
-				if (isMobile) {
-					gridX = Math.floor(gridX / 2) * 2;
-					gridY = Math.floor(gridY / 2) * 2;
+				activeDragElement.x = cell.x;
+				activeDragElement.y = cell.y;
+
+				// Auto-scroll when dragging near top or bottom of viewport
+				const scrollZone = 150;
+				const scrollSpeed = 15;
+				const viewportHeight = window.innerHeight;
+
+				if (e.clientY < scrollZone) {
+					// Near top - scroll up
+					const intensity = 1 - e.clientY / scrollZone;
+					window.scrollBy(0, -scrollSpeed * intensity);
+				} else if (e.clientY > viewportHeight - scrollZone) {
+					// Near bottom - scroll down
+					const intensity = 1 - (viewportHeight - e.clientY) / scrollZone;
+					window.scrollBy(0, scrollSpeed * intensity);
 				}
-
-				activeDragElement.x = gridX;
-				activeDragElement.y = gridY;
 			}}
 			ondragend={async (e) => {
 				e.preventDefault();
-				if (!container) return;
-
-				const x = e.clientX + activeDragElement.mouseDeltaX;
-				const y = e.clientY + activeDragElement.mouseDeltaY;
-				const rect = container.getBoundingClientRect();
-
-				let gridX = clamp(
-					Math.floor(((x - rect.left) / rect.width) * 4),
-					0,
-					4 - (activeDragElement.w ?? 0)
-				);
-				let gridY = Math.max(Math.floor(((y - rect.top) / rect.width) * 4), 0);
-				if (isMobile) {
-					gridX = Math.floor(gridX / 2) * 2;
-					gridY = Math.floor(gridY / 2) * 2;
-				}
+				const cell = getDragXY(e);
+				if (!cell) return;
 
 				if (activeDragElement.item) {
 					if (isMobile) {
-						activeDragElement.item.mobileX = gridX;
-						activeDragElement.item.mobileY = gridY;
+						activeDragElement.item.mobileX = cell.x;
+						activeDragElement.item.mobileY = cell.y;
 					} else {
-						activeDragElement.item.x = gridX;
-						activeDragElement.item.y = gridY;
+						activeDragElement.item.x = cell.x;
+						activeDragElement.item.y = cell.y;
 					}
 
 					fixCollisions(items, activeDragElement.item, isMobile);
@@ -296,6 +317,7 @@
 					bind:item={items[i]}
 					ondelete={() => {
 						items = items.filter((it) => it !== item);
+						compactItems(items, isMobile);
 					}}
 					onsetsize={(newW: number, newH: number) => {
 						if (isMobile) {
@@ -309,15 +331,17 @@
 						fixCollisions(items, item, isMobile);
 					}}
 					ondragstart={(e) => {
-						const target = e.target as HTMLDivElement;
+						const target = e.currentTarget as HTMLDivElement;
 						activeDragElement.element = target;
 						activeDragElement.w = item.w;
 						activeDragElement.h = item.h;
 						activeDragElement.item = item;
 
 						const rect = target.getBoundingClientRect();
-						activeDragElement.mouseDeltaX = rect.left + margin - e.clientX;
+						activeDragElement.mouseDeltaX = rect.left - e.clientX;
 						activeDragElement.mouseDeltaY = rect.top - e.clientY;
+						console.log(activeDragElement.mouseDeltaY);
+						console.log(rect.width);
 					}}
 				>
 					<EditingCard bind:item={items[i]} />
@@ -325,13 +349,22 @@
 			{/each}
 
 			{#if activeDragElement.element && activeDragElement.x >= 0 && activeDragElement.item}
-				{@const item = activeDragElement}
+				{@const finalPos = simulateFinalPosition(items, activeDragElement.item, activeDragElement.x, activeDragElement.y, isMobile)}
 				<div
-					class={['bg-base-500/10 absolute aspect-square rounded-2xl']}
-					style={`translate: calc(${(item.x / 4) * 100}cqw + ${margin / 2}px) calc(${(item.y / 4) * 100}cqw + ${margin / 2}px); 
-                
-                width: calc(${(getW(activeDragElement.item) / 4) * 100}cqw - ${margin}px);
-                height: calc(${(getH(activeDragElement.item) / 4) * 100}cqw - ${margin}px);`}
+					class={[
+						'bg-base-500/10 absolute aspect-square rounded-2xl transition-transform duration-100'
+					]}
+					style={`translate: calc(${(finalPos.x / 4) * 100}cqw + ${margin}px) calc(${(finalPos.y / 4) * 100}cqw + ${margin}px);
+
+                width: calc(${(getW(activeDragElement.item) / 4) * 100}cqw - ${margin * 2}px);
+                height: calc(${(getH(activeDragElement.item) / 4) * 100}cqw - ${margin * 2}px);`}
+				></div>
+			{/if}
+
+			{#if dev}
+				<div
+					class="absolute size-4 rounded-full bg-red-500"
+					style={`translate: ${debugPoint.x}px ${debugPoint.y}px;`}
 				></div>
 			{/if}
 			<div style="height: {((maxHeight + 1) / 4) * 100}cqw;"></div>

@@ -66,7 +66,7 @@
 		height: calc((var(--mh) / 8) * 100cqw - (var(--mm) * 2));
 	}
 
-	@container wrapper (width >= 64rem) {
+	@container grid (width >= 42rem) {
 		.card {
 			translate: calc((var(--dx) / 8) * 100cqw + var(--dm))
 				calc((var(--dy) / 8) * 100cqw + var(--dm));
