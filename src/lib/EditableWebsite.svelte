@@ -393,12 +393,6 @@
 				></div>
 			{/if}
 
-			{#if dev}
-				<div
-					class="absolute size-4 rounded-full bg-red-500"
-					style={`translate: ${debugPoint.x}px ${debugPoint.y}px;`}
-				></div>
-			{/if}
 			<div style="height: {((maxHeight + 2) / 8) * 100}cqw;"></div>
 		</div>
 	</div>

@@ -57,7 +57,7 @@
 	--columns: ${COLUMNS}`}
 	{...rest}
 >
-	<div class="relative h-full w-full overflow-hidden rounded-[15px]">
+	<div class="relative h-full w-full overflow-hidden rounded-[15px] isolate">
 		{@render children?.()}
 	</div>
 	{@render controls?.()}

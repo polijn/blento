@@ -1,5 +1,6 @@
 import type { Item } from '$lib/types';
 import { ATProtoCollectionsCardDefinition } from './ATProtoCollectionsCard';
+import { BlueskyMediaCardDefinition } from './BlueskyMediaCard';
 import { BlueskyPostCardDefinition } from './BlueskyPostCard';
 import { EmbedCardDefinition } from './EmbedCard';
 import { ImageCardDefinition } from './ImageCard';
@@ -24,7 +25,8 @@ export const AllCardDefinitions = [
 	EmbedCardDefinition,
 	MapCardDefinition,
 	ATProtoCollectionsCardDefinition,
-	SectionCardDefinition
+	SectionCardDefinition,
+	BlueskyMediaCardDefinition
 ] as const;
 
 export const CardDefinitionsByType = AllCardDefinitions.reduce(

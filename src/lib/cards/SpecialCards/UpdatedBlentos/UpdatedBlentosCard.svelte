@@ -10,7 +10,7 @@
 
 	const data = getAdditionalUserData();
 	// svelte-ignore state_referenced_locally
-	const profiles = (data[item.cardType] as ProfileViewDetailed[]);
+	const profiles = (data[item.cardType] as ProfileViewDetailed[]).splice(20);
 </script>
 
 <div class="pointer-events-none">

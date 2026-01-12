@@ -16,8 +16,6 @@
 
 	onMount(async () => {
 		try {
-			console.log(`Loading map...`);
-
 			// @ts-ignore
 			leaflet = await import('leaflet');
 
@@ -42,8 +40,6 @@
 				!item.color || item.color === 'transparent' || item.color === 'base'
 					? 'accent'
 					: item.color;
-
-			console.log(color);
 
 			const computedColor = getCSSVar(`--color-${color}-500`);
 

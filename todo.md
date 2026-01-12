@@ -1,6 +1,7 @@
 # todo
 
-- video card
+- video card or image from bluesky
+- general video card
 - edit already created cards (e.g. change link)
 - link card: save favicon and og image to pds
 - [x] more cards list

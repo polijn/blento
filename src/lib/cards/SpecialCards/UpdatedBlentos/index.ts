@@ -33,7 +33,6 @@ export const UpdatedBlentosCardDefitition = {
 			}
 
 			const result = [...(await Promise.all(profiles)), ...existingUsersArray];
-			result.splice(20);
 
 			if (platform?.env?.USER_DATA_CACHE) {
 				await platform?.env?.USER_DATA_CACHE.put('updatedBlentos', JSON.stringify(result));
