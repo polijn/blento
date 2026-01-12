@@ -10,6 +10,11 @@
 - change general settings:
     - show profile
     - base, accent color
+    - title
+    - favicon
+
+- og images
+
 - more cards:
     - instagram
     - github

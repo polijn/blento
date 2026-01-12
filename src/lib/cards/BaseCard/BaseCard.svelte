@@ -7,9 +7,9 @@
 	import { getColor } from '..';
 
 	const colors = {
-		base: 'border-base-200 shadow-lg dark:shadow-none inset-shadow-sm inset-shadow-base-500/10 shadow-base-900/5 bg-base-50 dark:border-base-800 dark:bg-base-900 border',
+		base: 'border-base-300 shadow-lg dark:shadow-none inset-shadow-sm inset-shadow-base-500/10 shadow-base-900/5 bg-base-50 dark:border-base-700 dark:bg-base-900 border',
 		accent:
-			'border-accent-200 shadow-lg inset-shadow-sm inset-shadow-accent-500/10 shadow-accent-900/10 bg-accent-50 dark:border-accent-900/50 dark:bg-accent-950/20 border',
+			'border-accent-300 shadow-lg inset-shadow-sm inset-shadow-accent-500/10 shadow-accent-900/10 bg-accent-50 dark:border-accent-900 dark:bg-accent-950/20 border',
 		transparent: ''
 	} as Record<string, string>;
 
