@@ -6,13 +6,16 @@
 - link card: save favicon and og image to pds
 - [x] more cards list
 - paste handler for card creation (+ when entering link)
-- text cards: align text top middle bottom and left center right
+- [x] text cards: align text top middle bottom and left center right
 - change general settings:
     - show profile
+    - profile on side or top
     - base, accent color
     - title
     - favicon
-- set custom card size
+- [x] set custom card size
+- spacer card
+- option to hide cards on mobile
 
 - [x] og images
 - separate og image for main page
@@ -21,6 +24,7 @@
     - instagram
     - github
     - bluesky account
+    - bluesky feed
     - bluesky post (fixed or latest)
     - social accounts card (multiple)
     - cartoons: aka https://www.opendoodles.com/
@@ -48,8 +52,14 @@
     - tixy
 
 - image cards: different images for dark and light mode
-
-- allow setting custom base and accent color
 - allow changing avatar and description to be different than bluesky
 - allow adding background image
-- borderless cards
+- [x] borderless cards
+
+- selfhosting options:
+    - [x] cloudflare workers
+    - other serverless option
+    - github pages
+
+- analytics (get page views)
+- custom subdomain
