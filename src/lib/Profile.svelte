@@ -29,7 +29,7 @@
 
 <!-- lg:fixed lg:h-screen lg:w-1/4 lg:max-w-none lg:px-12 lg:pt-24 xl:w-1/3 -->
 <div
-	class="mx-auto flex max-w-2xl flex-col justify-between px-8 @5xl/wrapper:fixed @5xl/wrapper:h-screen @5xl/wrapper:w-1/4 @5xl/wrapper:max-w-none @5xl/wrapper:px-12 @7xl/wrapper:w-1/3"
+	class="mx-auto flex max-w-2xl flex-col justify-between px-8 @5xl/wrapper:fixed @5xl/wrapper:h-screen @5xl/wrapper:w-1/4 @5xl/wrapper:max-w-none @5xl/wrapper:px-12"
 >
 	<div class="flex flex-col gap-4 pt-16 pb-8 @5xl/wrapper:h-screen @5xl/wrapper:pt-24">
 		<img

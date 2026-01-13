@@ -271,7 +271,7 @@
 	<Profile {handle} {did} {data} />
 
 	<div
-		class="mx-auto max-w-2xl @5xl/wrapper:grid @5xl/wrapper:max-w-7xl @5xl/wrapper:grid-cols-4 @7xl/wrapper:grid-cols-3"
+		class="mx-auto max-w-2xl @5xl/wrapper:grid @5xl/wrapper:max-w-7xl @5xl/wrapper:grid-cols-4"
 	>
 		<div></div>
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -334,7 +334,7 @@
 				activeDragElement.element = null;
 				return true;
 			}}
-			class="@container/grid relative col-span-3 px-2 py-8 @5xl/wrapper:px-8 @7xl/wrapper:col-span-2"
+			class="@container/grid relative col-span-3 px-2 py-8 @5xl/wrapper:px-8"
 		>
 			{#each items as item, i (item.id)}
 				<!-- {#if item !== activeDragElement.item} -->

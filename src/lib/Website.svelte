@@ -39,11 +39,11 @@
 <div class="@container/wrapper relative w-full">
 	<Profile {handle} {did} {data} showEditButton={true} />
 
-	<div class="mx-auto max-w-2xl lg:grid lg:max-w-none lg:grid-cols-4 xl:grid-cols-3">
+	<div class="mx-auto max-w-2xl lg:grid lg:max-w-none lg:grid-cols-4">
 		<div></div>
 		<div
 			bind:this={container}
-			class="@container/grid relative col-span-3 px-2 py-8 lg:px-8 xl:col-span-2"
+			class="@container/grid relative col-span-3 px-2 py-8 lg:px-8"
 		>
 			{#each items.toSorted(sortItems) as item}
 				<BaseCard {item}>

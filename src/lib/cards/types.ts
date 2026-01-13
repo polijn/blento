@@ -37,6 +37,8 @@ export type CardDefinition = {
 	sidebarComponent?: Component<SidebarComponentProps>;
 	sidebarButtonText?: string;
 
+	settingsComponent?: Component<ContentComponentProps>;
+
 	loadData?: (
 		items: Item[],
 		{ did, handle, platform }: { did: string; handle: string; platform?: App.Platform }

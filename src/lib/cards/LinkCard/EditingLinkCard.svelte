@@ -6,12 +6,40 @@
 	let { item = $bindable() }: ContentComponentProps = $props();
 
 	let isMobile = getIsMobile();
+
+	let faviconHasError = $state(false);
 </script>
 
 <div class="flex h-full flex-col justify-between p-4">
 	<div>
 		{#if item.cardData.favicon}
-			<img class="mb-2 size-8 rounded-lg object-cover" src={item.cardData.favicon} alt="" />
+			{#if !faviconHasError}
+				<img
+					class="mb-2 size-8 rounded-lg object-cover"
+					onerror={() => (faviconHasError = true)}
+					src={item.cardData.favicon}
+					alt=""
+				/>
+			{:else}
+				<div
+					class="bg-base-100 border-base-300 dark:border-base-800 dark:bg-base-900 mb-2 inline-flex size-8 items-center justify-center rounded-lg border shadow-sm"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="size-4"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"
+						/>
+					</svg>
+				</div>
+			{/if}
 		{/if}
 
 		<div
