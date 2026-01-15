@@ -1,18 +1,30 @@
 <script lang="ts">
 	import type { Item } from '$lib/types';
-	import { textAlignClasses, verticalAlignClasses } from '.';
+	import type { Editor } from '@tiptap/core';
+	import { textAlignClasses, textSizeClasses, verticalAlignClasses } from '.';
 	import type { ContentComponentProps } from '../types';
 	import MarkdownTextEditor from '../utils/MarkdownTextEditor.svelte';
+	import { cn } from '@foxui/core';
 
 	let { item = $bindable<Item>() }: ContentComponentProps = $props();
+
+	let editor: Editor | null = $state(null);
+
+$inspect(textSizeClasses[item.cardData.textSize as number]);
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
-	class={[
-		'prose dark:prose-invert prose-sm prose-a:no-underline prose-a:text-accent-600 dark:prose-a:text-accent-400 accent:prose-a:text-accent-950 accent:prose-a:underline accent:prose-p:text-base-900 hover:bg-base-500/20 prose-p:first:mt-0 prose-p:last:mb-0 h-full overflow-y-scroll rounded-md p-2 inline-flex w-full max-w-none',
+	class={cn(
+		'prose dark:prose-invert prose-neutral prose-sm prose-a:no-underline prose-a:text-accent-600 dark:prose-a:text-accent-400 accent:prose-a:text-accent-950 accent:prose-a:underline accent:prose-p:text-base-900 hover:bg-base-700/5 accent:hover:bg-accent-300/20 prose-p:first:mt-0 prose-p:last:mb-0 inline-flex h-full w-full text-lg max-w-none overflow-y-scroll rounded-md p-2 transition-colors duration-150 cursor-text',
 		textAlignClasses[item.cardData.textAlign as string],
-		verticalAlignClasses[item.cardData.verticalAlign as string]
-	]}
+		verticalAlignClasses[item.cardData.verticalAlign as string],
+		textSizeClasses[(item.cardData.textSize ?? 0) as number]
+	)}
+	onclick={() => {
+		editor?.commands.focus('end');
+	}}
 >
-	<MarkdownTextEditor bind:item />
+	<MarkdownTextEditor bind:item bind:editor />
 </div>

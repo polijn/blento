@@ -7,7 +7,7 @@
 	import { getColor } from '..';
 
 	const colors = {
-		base: 'bg-base-50 dark:bg-base-900',
+		base: 'bg-base-200/50 dark:bg-base-950/50',
 		accent:
 			'bg-accent-400 dark:bg-accent-500 accent',
 		transparent: ''
@@ -27,6 +27,7 @@
 		isEditing = false,
 		controls,
 		showOutline,
+		class: className,
 		...rest
 	}: BaseCardProps = $props();
 
@@ -43,6 +44,7 @@
 		color ? (colors[color] ?? colors.accent) : colors.base,
 		color !== 'accent' && item.color !== 'base' && item.color !== 'transparent' ? color : '',
 		showOutline ? 'outline-2' : '',
+		className
 	]}
 	style={`
     --mx: ${item.mobileX};

@@ -10,17 +10,19 @@
 	import TurndownService from 'turndown';
 	import { RichTextLink } from './extensions/RichTextLink';
 	import type { Item } from '$lib/types';
+	import { textAlignClasses, verticalAlignClasses } from '../TextCard';
 
 	let element: HTMLElement | undefined = $state();
-	let editor: Editor | null = $state(null);
 
 	let loaded = $state(false);
 
 	let {
+		editor = $bindable(),
 		item = $bindable(),
 		placeholder = '',
 		defaultContent = ''
 	}: {
+		editor: Editor | null;
 		item: Item;
 		placeholder?: string;
 		defaultContent?: string;
@@ -50,7 +52,11 @@
 
 			// parse to json
 			json = generateJSON(html, [
-				StarterKit.configure(),
+				StarterKit.configure({
+					heading: false,
+					bulletList: false,
+					codeBlock: false
+				}),
 				Image.configure(),
 				RichTextLink.configure({
 					openOnClick: false
@@ -61,7 +67,12 @@
 		}
 
 		let extensions: Extensions = [
-			StarterKit.configure(),
+			StarterKit.configure({
+				heading: false,
+				bulletList: false,
+				codeBlock: false,
+				dropcursor: false
+			}),
 			Image.configure(),
 			Link.configure({
 				openOnClick: false
@@ -92,9 +103,9 @@
 
 			editorProps: {
 				attributes: {
-					class: 'outline-none'
+					class: 'outline-none w-full'
 				},
-				handleDOMEvents: { drop: () => true }
+				handleDOMEvents: { drop: () => false }
 			}
 		});
 
@@ -108,7 +119,7 @@
 	});
 </script>
 
-<div bind:this={element}></div>
+<div class="w-full" bind:this={element}></div>
 
 <style>
 	:global(.tiptap p.is-editor-empty:first-child::before) {

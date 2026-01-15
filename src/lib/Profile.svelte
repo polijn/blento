@@ -22,21 +22,25 @@
 </script>
 
 <Head
-	favicon={'https://cdn.bsky.app/img/avatar/plain/' + did + '/' + profileData?.avatar.ref.$link}
+	favicon={profileData?.avatar?.ref?.$link ? 'https://cdn.bsky.app/img/avatar/plain/' + did + '/' + profileData.avatar.ref.$link : null}
 	title={profileData?.displayName || handle}
 	image={'/' + handle + '/og.png'}
 />
 
 <!-- lg:fixed lg:h-screen lg:w-1/4 lg:max-w-none lg:px-12 lg:pt-24 xl:w-1/3 -->
 <div
-	class="mx-auto flex max-w-2xl flex-col justify-between px-8 @5xl/wrapper:fixed @5xl/wrapper:h-screen @5xl/wrapper:w-1/4 @5xl/wrapper:max-w-none @5xl/wrapper:px-12"
+	class="mx-auto flex max-w-lg flex-col justify-between px-8 @5xl/wrapper:fixed @5xl/wrapper:h-screen @5xl/wrapper:w-1/4 @5xl/wrapper:max-w-none @5xl/wrapper:px-12"
 >
 	<div class="flex flex-col gap-4 pt-16 pb-8 @5xl/wrapper:h-screen @5xl/wrapper:pt-24">
-		<img
-			class="rounded-fulll size-32 rounded-full @5xl/wrapper:size-44"
-			src={'https://cdn.bsky.app/img/avatar/plain/' + did + '/' + profileData?.avatar.ref.$link}
-			alt=""
-		/>
+		{#if profileData?.avatar?.ref?.$link}
+			<img
+				class="size-32 rounded-full @5xl/wrapper:size-44 border border-base-400 dark:border-base-800"
+				src={'https://cdn.bsky.app/img/avatar/plain/' + did + '/' + profileData.avatar.ref.$link}
+				alt=""
+			/>
+		{:else}
+			<div class="bg-base-300 dark:bg-base-700 size-32 rounded-full @5xl/wrapper:size-44"></div>
+		{/if}
 		<div class="text-4xl font-bold wrap-anywhere">
 			{profileData?.displayName || handle}
 		</div>

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { getIsMobile } from '$lib/helper';
 	import type { ContentComponentProps } from '../types';
 
@@ -56,8 +57,8 @@
 		</div>
 	</div>
 
-	{#if ((isMobile() && item.mobileH >= 8) || (!isMobile() && item.h >= 4)) && item.cardData.image}
-		<img class=" mb-2 max-h-32 w-full rounded-xl object-cover" src={item.cardData.image} alt="" />
+	{#if browser && ((isMobile() && item.mobileH >= 8) || (!isMobile() && item.h >= 4)) && item.cardData.image}
+		<img class="mb-2 max-h-32 w-full starting:opacity-0 opacity-100 transition-opacity duration-100 rounded-xl object-cover" src={item.cardData.image} alt="" />
 	{/if}
 	{#if item.cardData.href}
 		<a

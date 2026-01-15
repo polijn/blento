@@ -22,7 +22,7 @@
 				target="_blank"
 			>
 				<img src={profile.avatar} class="aspect-square size-28 rounded-full" alt="" />
-				<div class="line-clamp-1 text-lg font-bold">{profile.displayName || profile.handle}</div>
+				<div class="line-clamp-1 text-md font-bold text-center">{profile.displayName || profile.handle}</div>
 			</a>
 		{/each}
 	</div>

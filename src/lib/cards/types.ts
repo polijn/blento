@@ -60,4 +60,6 @@ export type CardDefinition = {
 	maxH?: number;
 
 	canResize?: boolean;
+
+	onUrlHandler?: (url: string, item: Item) => Item | null;
 };

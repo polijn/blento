@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { getIsMobile } from '$lib/helper';
 	import type { ContentComponentProps } from '../types';
 	import PlainTextEditor from '../utils/PlainTextEditor.svelte';
@@ -57,7 +58,7 @@
 		</div>
 	</div>
 
-	{#if ((isMobile() && item.mobileH >= 8) || (!isMobile() && item.h >= 4)) && item.cardData.image}
+	{#if browser && ((isMobile() && item.mobileH >= 8) || (!isMobile() && item.h >= 4)) && item.cardData.image}
 		<img class=" mb-2 max-h-32 w-full rounded-xl object-cover" src={item.cardData.image} alt="" />
 	{/if}
 </div>

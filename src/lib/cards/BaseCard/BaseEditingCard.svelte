@@ -106,17 +106,16 @@
 		let newW = resizeStartW + gridDeltaW;
 		let newH = resizeStartH + gridDeltaH;
 
-		console.log(item.mobileW, newW);
 		if (isMobile()) {
 			newW = Math.round(newW / 4) * 4;
 		} else {
 			newW = Math.round(newW / 2) * 2;
 		}
-		console.log(item.mobileW, newW);
+		let mult = isMobile() ? 2 : 1;
 
 		// Clamp to min/max
-		newW = Math.max(minW, Math.min(maxW, newW));
-		newH = Math.max(minH, Math.min(maxH, newH));
+		newW = Math.max(minW * mult, Math.min(maxW, newW));
+		newH = Math.max(minH * mult, Math.min(maxH, newH));
 
 		// Only call onsetsize if size changed
 		const currentW = isMobile() ? (item.mobileW ?? item.w) : item.w;
@@ -137,8 +136,8 @@
 		if (!cardDef) return false;
 
 		if (isMobile()) {
-			w *= 2;
-			h *= 2;
+			
+			return w >= minW && w*2 <= maxW && h >= minH && h*2 <= maxH;
 		}
 
 		return w >= minW && w <= maxW && h >= minH && h <= maxH;
@@ -155,7 +154,7 @@
 	let settingsPopoverOpen = $state(false);
 </script>
 
-<BaseCard {item} {...rest} isEditing={true} bind:ref showOutline={isResizing}>
+<BaseCard {item} isEditing={true} bind:ref showOutline={isResizing} class="starting:scale-0 scale-100 starting:opacity-0 opacity-100" {...rest} >
 	{@render children?.()}
 
 	{#snippet controls()}

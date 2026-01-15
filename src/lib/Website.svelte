@@ -39,7 +39,7 @@
 <div class="@container/wrapper relative w-full">
 	<Profile {handle} {did} {data} showEditButton={true} />
 
-	<div class="mx-auto max-w-2xl lg:grid lg:max-w-none lg:grid-cols-4">
+	<div class="mx-auto max-w-lg lg:grid lg:max-w-none lg:grid-cols-4">
 		<div></div>
 		<div
 			bind:this={container}

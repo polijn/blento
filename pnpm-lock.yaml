@@ -89,6 +89,9 @@ importers:
       plyr:
         specifier: ^3.8.4
         version: 3.8.4
+      simple-icons:
+        specifier: ^16.5.0
+        version: 16.5.0
       svelte-sonner:
         specifier: ^1.0.7
         version: 1.0.7(svelte@5.45.8)
@@ -2668,6 +2671,10 @@ packages:
   side-channel@1.1.0:
     resolution: {integrity: sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==, tarball: https://registry.npmjs.org/side-channel/-/side-channel-1.1.0.tgz}
     engines: {node: '>= 0.4'}
+
+  simple-icons@16.5.0:
+    resolution: {integrity: sha512-72nn0oHADKx6Hknu7q6M0vfL8LiCUMKABOHane2+4xdqaFBSHfNNBjuZioihiqVQMz7IvVle4NKAM0IlXvl/9A==, tarball: https://registry.npmjs.org/simple-icons/-/simple-icons-16.5.0.tgz}
+    engines: {node: '>=0.12.18'}
 
   simple-swizzle@0.2.4:
     resolution: {integrity: sha512-nAu1WFPQSMNr2Zn9PGSZK9AGn4t/y97lEm+MXTtUDwfP0ksAIX4nO+6ruD9Jwut4C49SB1Ws+fbXsm/yScWOHw==, tarball: https://registry.npmjs.org/simple-swizzle/-/simple-swizzle-0.2.4.tgz}
@@ -5438,6 +5445,8 @@ snapshots:
       side-channel-list: 1.0.0
       side-channel-map: 1.0.1
       side-channel-weakmap: 1.0.2
+
+  simple-icons@16.5.0: {}
 
   simple-swizzle@0.2.4:
     dependencies:

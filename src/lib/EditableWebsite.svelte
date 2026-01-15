@@ -28,6 +28,7 @@
 	import { setDidContext, setHandleContext } from './website/context';
 	import BaseEditingCard from './cards/BaseCard/BaseEditingCard.svelte';
 	import Settings from './Settings.svelte';
+	import ImageDropper from './components/ImageDropper.svelte';
 
 	let {
 		handle,
@@ -234,6 +235,60 @@
 	}
 </script>
 
+<svelte:body
+	onpaste={(event) => {
+		const target = event.target;
+
+		const active = document.activeElement;
+		const isEditable =
+			active instanceof HTMLInputElement ||
+			active instanceof HTMLTextAreaElement ||
+			active?.isContentEditable;
+
+		if (isEditable) {
+			// Let normal paste happen
+			return;
+		}
+
+		const text = event.clipboardData?.getData('text/plain');
+
+		if (!text) return;
+
+		try {
+			const url = new URL(text);
+
+			let item: Item = {
+				id: TID.nextStr(),
+				x: 0,
+				y: 0,
+				w: 2,
+				h: 2,
+				mobileH: 4,
+				mobileW: 4,
+				mobileX: 0,
+				mobileY: 0,
+				cardType: '',
+				cardData: {}
+			};
+
+			newItem.item = item;
+
+			for (const cardDef of AllCardDefinitions) {
+				if (cardDef.onUrlHandler?.(text, item)) {
+					item.cardType = cardDef.type;
+					saveNewItem();
+				}
+			}
+
+			newItem = {};
+		} catch (e) {
+			return;
+		}
+	}}
+/>
+
+<!-- <ImageDropper processImageFile={(file: File) => {}} /> -->
+
 {#if !dev}
 	<div
 		class="bg-base-200 dark:bg-base-800 fixed inset-0 z-50 inline-flex h-full w-full items-center justify-center p-4 text-center lg:hidden"
@@ -270,9 +325,7 @@
 >
 	<Profile {handle} {did} {data} />
 
-	<div
-		class="mx-auto max-w-2xl @5xl/wrapper:grid @5xl/wrapper:max-w-7xl @5xl/wrapper:grid-cols-4"
-	>
+	<div class="mx-auto max-w-lg @5xl/wrapper:grid @5xl/wrapper:max-w-7xl @5xl/wrapper:grid-cols-4">
 		<div></div>
 		<!-- svelte-ignore a11y_no_static_element_interactions -->
 		<div

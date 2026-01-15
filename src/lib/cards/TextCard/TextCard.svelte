@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { marked } from 'marked';
 	import type { ContentComponentProps } from '../types';
-	import { textAlignClasses, verticalAlignClasses } from '.';
+	import { textAlignClasses, textSizeClasses, verticalAlignClasses } from '.';
 
 	let { item }: ContentComponentProps = $props();
 
@@ -12,9 +12,10 @@
 
 <div
 	class={[
-		'prose dark:prose-invert prose-sm prose-a:no-underline prose-a:text-accent-600 dark:prose-a:text-accent-400 accent:prose-a:text-accent-950 accent:prose-a:underline accent:prose-p:text-base-900 prose-p:first:mt-0 prose-p:last:mb-0 inline-flex h-full w-full overflow-y-scroll rounded-md p-3 max-w-none',
+		'prose dark:prose-invert prose-neutral prose-sm prose-a:no-underline prose-a:text-accent-600 dark:prose-a:text-accent-400 accent:prose-a:text-accent-950 accent:prose-a:underline accent:prose-p:text-base-900 prose-p:first:mt-0 prose-p:last:mb-0 prose-headings:first:mt-0 prose-headings:last:mb-0 inline-flex h-full min-h-full w-full max-w-none overflow-y-scroll rounded-md p-3 text-lg',
 		textAlignClasses?.[item.cardData.textAlign as string],
-		verticalAlignClasses[item.cardData.verticalAlign as string]
+		verticalAlignClasses[item.cardData.verticalAlign as string],
+		textSizeClasses[(item.cardData.textSize ?? 0) as number]
 	]}
 >
 	<span>{@html marked.parse(item.cardData.text ?? '', { renderer })}</span>

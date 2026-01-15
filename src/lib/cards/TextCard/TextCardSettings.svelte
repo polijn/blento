@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Item } from '$lib/types';
 	import type { ContentComponentProps } from '../types';
-	import { ToggleGroup, ToggleGroupItem } from '@foxui/core';
+	import { ToggleGroup, ToggleGroupItem, Button } from '@foxui/core';
 
 	let { item = $bindable<Item>() }: ContentComponentProps = $props();
 
@@ -119,4 +119,53 @@
 			></ToggleGroupItem
 		>
 	</ToggleGroup>
+
+	<div>
+		<Button
+			variant="ghost"
+			onclick={() => {
+				item.cardData.textSize = Math.max((item.cardData.textSize ?? 0) - 1, 0);
+			}}
+			disabled={(item.cardData.textSize ?? 0) < 1}
+		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="24"
+				height="24"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				class="lucide lucide-aarrow-down-icon lucide-a-arrow-down"
+				><path d="m14 12 4 4 4-4" /><path d="M18 16V7" /><path
+					d="m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16"
+				/><path d="M3.304 13h6.392" /></svg
+			>
+		</Button>
+		<Button
+			variant="ghost"
+			onclick={() => {
+				item.cardData.textSize = Math.min((item.cardData.textSize ?? 0) + 1, 5);
+			}}
+			disabled={(item.cardData.textSize ?? 0) > 4}
+		>
+			<svg
+				xmlns="http://www.w3.org/2000/svg"
+				width="24"
+				height="24"
+				viewBox="0 0 24 24"
+				fill="none"
+				stroke="currentColor"
+				stroke-width="2"
+				stroke-linecap="round"
+				stroke-linejoin="round"
+				class="lucide lucide-aarrow-up-icon lucide-a-arrow-up"
+				><path d="m14 11 4-4 4 4" /><path d="M18 16V7" /><path
+					d="m2 16 4.039-9.69a.5.5 0 0 1 .923 0L11 16"
+				/><path d="M3.304 13h6.392" /></svg
+			>
+		</Button>
+	</div>
 </div>
