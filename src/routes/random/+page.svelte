@@ -5,6 +5,14 @@
 	let { data } = $props();
 </script>
 
+<svelte:body
+	onkeydown={(e) => {
+		if (e.key === 'ArrowRight' || e.key === 'r') {
+			window.location.reload();
+		}
+	}}
+/>
+
 <Website {data} />
 
 <Button
