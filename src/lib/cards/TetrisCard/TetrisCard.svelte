@@ -23,8 +23,8 @@
 	// Line clear animation
 	let clearingLines: number[] = [];
 	let clearAnimationProgress = 0;
-	let isClearingAnimation = false;
-	const CLEAR_ANIMATION_DURATION = 200; // ms
+	let isClearingAnimation = $state(false);
+	const CLEAR_ANIMATION_DURATION = 120; // ms - fast and crisp
 	let clearAnimationStart = 0;
 
 	// Grid settings
@@ -32,41 +32,122 @@
 	const ROWS = 20;
 	let cellSize = 20;
 
-	// Color schemes for different modes
-	const COLOR_SCHEMES = {
-		light: {
-			I: '#0891b2', // cyan-600
-			O: '#ca8a04', // yellow-600
-			T: '#9333ea', // purple-600
-			S: '#16a34a', // green-600
-			Z: '#dc2626', // red-600
-			J: '#2563eb', // blue-600
-			L: '#ea580c'  // orange-600
-		},
-		dark: {
-			I: '#22d3ee', // cyan-400
-			O: '#facc15', // yellow-400
-			T: '#c084fc', // purple-400
-			S: '#4ade80', // green-400
-			Z: '#f87171', // red-400
-			J: '#60a5fa', // blue-400
-			L: '#fb923c'  // orange-400
-		},
-		accent: {
-			I: '#164e63', // cyan-900
-			O: '#713f12', // yellow-900
-			T: '#581c87', // purple-900
-			S: '#14532d', // green-900
-			Z: '#7f1d1d', // red-900
-			J: '#1e3a8a', // blue-900
-			L: '#7c2d12'  // orange-900
-		}
+	// Vibrant color palette - tailwind 500 colors
+	const VIBRANT_COLORS = {
+		cyan: '#06b6d4',
+		emerald: '#10b981',
+		violet: '#8b5cf6',
+		amber: '#f59e0b',
+		rose: '#f43f5e',
+		blue: '#3b82f6',
+		lime: '#84cc16',
+		fuchsia: '#d946ef',
+		orange: '#f97316',
+		teal: '#14b8a6',
+		indigo: '#6366f1',
+		pink: '#ec4899',
+		red: '#ef4444',
+		yellow: '#eab308',
+		green: '#22c55e',
+		purple: '#a855f7',
+		sky: '#0ea5e9'
 	};
 
-	function getColorScheme() {
-		if (isAccentMode) return COLOR_SCHEMES.accent;
-		if (isDarkMode) return COLOR_SCHEMES.dark;
-		return COLOR_SCHEMES.light;
+	// Color families that should not be used together (too similar)
+	const COLOR_FAMILIES: Record<string, string[]> = {
+		pink: ['pink', 'rose', 'red', 'fuchsia'],
+		rose: ['rose', 'pink', 'red', 'fuchsia'],
+		red: ['red', 'rose', 'pink', 'orange'],
+		orange: ['orange', 'amber', 'red', 'yellow'],
+		amber: ['amber', 'orange', 'yellow'],
+		yellow: ['yellow', 'amber', 'lime', 'orange'],
+		lime: ['lime', 'green', 'yellow', 'emerald'],
+		green: ['green', 'emerald', 'lime', 'teal'],
+		emerald: ['emerald', 'green', 'teal', 'cyan'],
+		teal: ['teal', 'cyan', 'emerald', 'green'],
+		cyan: ['cyan', 'teal', 'sky', 'blue'],
+		sky: ['sky', 'cyan', 'blue'],
+		blue: ['blue', 'sky', 'indigo', 'cyan'],
+		indigo: ['indigo', 'blue', 'violet', 'purple'],
+		violet: ['violet', 'purple', 'indigo', 'fuchsia'],
+		purple: ['purple', 'violet', 'fuchsia', 'indigo'],
+		fuchsia: ['fuchsia', 'purple', 'pink', 'violet']
+	};
+
+	let detectedAccentFamily = $state<string | null>(null);
+
+	function detectAccentColor() {
+		if (!container) return null;
+		// Look for accent color class on parent card
+		const card = container.closest('.card');
+		if (!card) return null;
+
+		for (const colorName of Object.keys(COLOR_FAMILIES)) {
+			if (card.classList.contains(colorName)) {
+				return colorName;
+			}
+		}
+		return null;
+	}
+
+	function getColorScheme(): Record<string, string> {
+		// Get colors that contrast well with the current background
+		const excludeColors = isAccentMode && detectedAccentFamily
+			? COLOR_FAMILIES[detectedAccentFamily] || []
+			: [];
+
+		// Pick 7 contrasting vibrant colors for the 7 tetrominos
+		const availableColors = Object.entries(VIBRANT_COLORS)
+			.filter(([name]) => !excludeColors.includes(name))
+			.map(([, color]) => color);
+
+		// Always ensure we have enough colors
+		const allColors = Object.values(VIBRANT_COLORS);
+		while (availableColors.length < 7) {
+			const fallback = allColors[availableColors.length % allColors.length];
+			if (!availableColors.includes(fallback)) {
+				availableColors.push(fallback);
+			} else {
+				availableColors.push(allColors[(availableColors.length * 3) % allColors.length]);
+			}
+		}
+
+		// For dark mode on base background, use slightly brighter versions
+		if (isDarkMode && !isAccentMode) {
+			return {
+				I: '#22d3ee', // cyan-400
+				O: '#fbbf24', // amber-400
+				T: '#a78bfa', // violet-400
+				S: '#34d399', // emerald-400
+				Z: '#fb7185', // rose-400
+				J: '#60a5fa', // blue-400
+				L: '#a3e635'  // lime-400
+			};
+		}
+
+		// For accent mode, use contrasting colors
+		if (isAccentMode) {
+			return {
+				I: availableColors[0],
+				O: availableColors[1],
+				T: availableColors[2],
+				S: availableColors[3],
+				Z: availableColors[4],
+				J: availableColors[5],
+				L: availableColors[6]
+			};
+		}
+
+		// Light mode - vibrant standard colors
+		return {
+			I: '#06b6d4', // cyan
+			O: '#f59e0b', // amber
+			T: '#8b5cf6', // violet
+			S: '#10b981', // emerald
+			Z: '#f43f5e', // rose
+			J: '#3b82f6', // blue
+			L: '#84cc16'  // lime
+		};
 	}
 
 	// Tetromino definitions (each has rotations)
@@ -101,6 +182,8 @@
 		isAccentMode = container.closest('.accent') !== null;
 		// Check dark mode
 		isDarkMode = container.closest('.dark') !== null && !container.closest('.light');
+		// Detect accent color family for smart contrast
+		detectedAccentFamily = detectAccentColor();
 	}
 
 	// Timing
@@ -114,7 +197,7 @@
 		}
 	}
 
-	function playTone(frequency: number, duration: number, type: OscillatorType = 'square') {
+	function playTone(frequency: number, duration: number, type: OscillatorType = 'square', volume: number = 0.04) {
 		if (!audioCtx) return;
 		try {
 			const oscillator = audioCtx.createOscillator();
@@ -126,8 +209,8 @@
 			oscillator.frequency.value = frequency;
 			oscillator.type = type;
 
-			gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
-			gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+			gainNode.gain.setValueAtTime(volume, audioCtx.currentTime);
+			gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
 
 			oscillator.start(audioCtx.currentTime);
 			oscillator.stop(audioCtx.currentTime + duration);
@@ -137,28 +220,33 @@
 	}
 
 	function playMove() {
-		playTone(150, 0.05);
+		// 8-bit tick
+		playTone(200, 0.03, 'square', 0.025);
 	}
 
 	function playRotate() {
-		playTone(300, 0.08);
+		// 8-bit blip
+		playTone(400, 0.04, 'square', 0.03);
 	}
 
 	function playDrop() {
-		playTone(100, 0.15);
+		// 8-bit thud
+		playTone(80, 0.1, 'square', 0.04);
 	}
 
 	function playLineClear(count: number) {
+		// Swoosh - original style
 		const baseFreq = 400;
 		for (let i = 0; i < count; i++) {
-			setTimeout(() => playTone(baseFreq + i * 100, 0.15, 'sine'), i * 80);
+			setTimeout(() => playTone(baseFreq + i * 100, 0.15, 'sine', 0.08), i * 80);
 		}
 	}
 
 	function playGameOver() {
-		playTone(200, 0.3, 'sawtooth');
-		setTimeout(() => playTone(150, 0.3, 'sawtooth'), 200);
-		setTimeout(() => playTone(100, 0.5, 'sawtooth'), 400);
+		// 8-bit descending
+		playTone(300, 0.15, 'square', 0.035);
+		setTimeout(() => playTone(200, 0.15, 'square', 0.03), 150);
+		setTimeout(() => playTone(120, 0.3, 'square', 0.025), 300);
 	}
 
 	// Initialize grid
@@ -320,7 +408,9 @@
 
 		clearingLines = [];
 		isClearingAnimation = false;
-		spawnPiece();
+
+		// Check if there are more complete lines (chains/cascades)
+		checkAndClearLines();
 	}
 
 	// Hard drop
@@ -425,34 +515,43 @@
 
 	function calculateSize() {
 		if (!canvas) return;
-		const container = canvas.parentElement;
-		if (!container) return;
+		const parent = canvas.parentElement;
+		if (!parent) return;
 
-		const maxWidth = container.clientWidth - 80; // Reserve space for next piece
-		const maxHeight = container.clientHeight - 40;
+		const padding = 8;
+		const availableWidth = parent.clientWidth - padding * 2;
+		const availableHeight = parent.clientHeight - padding * 2;
 
-		cellSize = Math.floor(Math.min(maxWidth / COLS, maxHeight / ROWS));
-		cellSize = Math.max(10, Math.min(30, cellSize));
+		// Calculate cell size to fit the grid in available space
+		// Use full width/height, UI will overlay on top
+		cellSize = Math.floor(Math.min(availableWidth / COLS, availableHeight / ROWS));
+		cellSize = Math.max(8, cellSize); // minimum 8px cells for very small cards
 
-		canvas.width = container.clientWidth;
-		canvas.height = container.clientHeight;
+		canvas.width = parent.clientWidth;
+		canvas.height = parent.clientHeight;
 	}
 
 	function drawBlock(x: number, y: number, color: string, size: number = cellSize) {
 		if (!ctx) return;
 
+		const gap = size >= 12 ? 1 : 0;
 		ctx.fillStyle = color;
-		ctx.fillRect(x, y, size - 1, size - 1);
+		ctx.fillRect(x, y, size - gap, size - gap);
 
-		// Highlight
-		ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-		ctx.fillRect(x, y, size - 1, 3);
-		ctx.fillRect(x, y, 3, size - 1);
+		// Only draw highlights/shadows for larger cells
+		if (size >= 10) {
+			const edge = Math.max(2, Math.floor(size * 0.15));
 
-		// Shadow
-		ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
-		ctx.fillRect(x + size - 4, y, 3, size - 1);
-		ctx.fillRect(x, y + size - 4, size - 1, 3);
+			// Highlight
+			ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+			ctx.fillRect(x, y, size - gap, edge);
+			ctx.fillRect(x, y, edge, size - gap);
+
+			// Shadow
+			ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
+			ctx.fillRect(x + size - gap - edge, y, edge, size - gap);
+			ctx.fillRect(x, y + size - gap - edge, size - gap, edge);
+		}
 	}
 
 	function gameLoop(timestamp: number) {
@@ -461,8 +560,11 @@
 			return;
 		}
 
+		// Detect theme on every frame for dynamic updates
+		detectTheme();
+
 		const colors = getColorScheme();
-		const textColor = isAccentMode ? '#1a1a1a' : (isDarkMode ? '#f5f5f5' : '#1a1a1a');
+		const textColor = isAccentMode ? '#000000' : (isDarkMode ? '#ffffff' : '#000000');
 		const gridBgColor = isAccentMode ? 'rgba(0, 0, 0, 0.15)' : (isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)');
 		const gridLineColor = isAccentMode ? 'rgba(0, 0, 0, 0.1)' : (isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.08)');
 
@@ -472,30 +574,32 @@
 		// Clear canvas
 		ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-		// Calculate grid position (centered with space for next piece on right)
+		// Calculate grid position (centered, using full space)
 		const gridWidth = COLS * cellSize;
 		const gridHeight = ROWS * cellSize;
-		const offsetX = Math.floor((canvasWidth - gridWidth - 60) / 2);
+		const offsetX = Math.floor((canvasWidth - gridWidth) / 2);
 		const offsetY = Math.floor((canvasHeight - gridHeight) / 2);
 
 		// Draw grid background
 		ctx.fillStyle = gridBgColor;
 		ctx.fillRect(offsetX, offsetY, gridWidth, gridHeight);
 
-		// Draw grid lines
-		ctx.strokeStyle = gridLineColor;
-		ctx.lineWidth = 1;
-		for (let i = 0; i <= COLS; i++) {
-			ctx.beginPath();
-			ctx.moveTo(offsetX + i * cellSize, offsetY);
-			ctx.lineTo(offsetX + i * cellSize, offsetY + gridHeight);
-			ctx.stroke();
-		}
-		for (let i = 0; i <= ROWS; i++) {
-			ctx.beginPath();
-			ctx.moveTo(offsetX, offsetY + i * cellSize);
-			ctx.lineTo(offsetX + gridWidth, offsetY + i * cellSize);
-			ctx.stroke();
+		// Only draw grid lines if cells are big enough
+		if (cellSize >= 12) {
+			ctx.strokeStyle = gridLineColor;
+			ctx.lineWidth = 1;
+			for (let i = 0; i <= COLS; i++) {
+				ctx.beginPath();
+				ctx.moveTo(offsetX + i * cellSize, offsetY);
+				ctx.lineTo(offsetX + i * cellSize, offsetY + gridHeight);
+				ctx.stroke();
+			}
+			for (let i = 0; i <= ROWS; i++) {
+				ctx.beginPath();
+				ctx.moveTo(offsetX, offsetY + i * cellSize);
+				ctx.lineTo(offsetX + gridWidth, offsetY + i * cellSize);
+				ctx.stroke();
+			}
 		}
 
 		// Handle line clear animation
@@ -517,45 +621,24 @@
 
 					// Check if this row is being cleared
 					if (clearingLines.includes(row)) {
-						// Swoosh animation: reveal from left to right
-						const swooshX = clearAnimationProgress * COLS;
-						if (col < swooshX) {
-							// Draw white flash that fades
-							const flashProgress = Math.max(0, 1 - (swooshX - col) / 3);
-							const flashColor = isAccentMode ? `rgba(255, 255, 255, ${flashProgress * 0.9})` :
-								(isDarkMode ? `rgba(255, 255, 255, ${flashProgress * 0.9})` : `rgba(255, 255, 255, ${flashProgress * 0.95})`);
-							ctx.fillStyle = flashColor;
+						// Swoosh animation: white sweep from left to right
+						const swooshCol = clearAnimationProgress * (COLS + 2); // +2 for overshoot
+						if (col < swooshCol - 1) {
+							// Already swept - show white fading out
+							const fadeProgress = Math.min(1, (swooshCol - col - 1) / 2);
+							ctx.fillStyle = `rgba(255, 255, 255, ${1 - fadeProgress})`;
+							ctx.fillRect(offsetX + col * cellSize, offsetY + row * cellSize, cellSize - 1, cellSize - 1);
+						} else if (col < swooshCol) {
+							// Sweep edge - bright white
+							ctx.fillStyle = '#ffffff';
 							ctx.fillRect(offsetX + col * cellSize, offsetY + row * cellSize, cellSize - 1, cellSize - 1);
 						} else {
+							// Not yet swept - show block
 							drawBlock(offsetX + col * cellSize, offsetY + row * cellSize, cellColor);
 						}
 					} else {
 						drawBlock(offsetX + col * cellSize, offsetY + row * cellSize, cellColor);
 					}
-				}
-			}
-		}
-
-		// Draw swoosh leading edge glow
-		if (isClearingAnimation && clearingLines.length > 0) {
-			const swooshX = clearAnimationProgress * COLS;
-			const glowCol = Math.floor(swooshX);
-
-			if (glowCol < COLS) {
-				for (const row of clearingLines) {
-					// Draw bright leading edge
-					const glowWidth = cellSize * 0.5;
-					const gradient = ctx.createLinearGradient(
-						offsetX + glowCol * cellSize, 0,
-						offsetX + glowCol * cellSize + glowWidth, 0
-					);
-					const glowColor = isAccentMode ? 'rgba(255, 255, 255, 0.95)' :
-						(isDarkMode ? 'rgba(255, 255, 255, 0.95)' : 'rgba(255, 255, 255, 1)');
-					gradient.addColorStop(0, glowColor);
-					gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-
-					ctx.fillStyle = gradient;
-					ctx.fillRect(offsetX + glowCol * cellSize, offsetY + row * cellSize, glowWidth, cellSize - 1);
 				}
 			}
 		}
@@ -604,25 +687,36 @@
 			}
 		}
 
-		// Draw next piece preview
+		// Draw next piece preview (top-right corner overlay)
 		if (nextPiece && (gameState === 'playing' || isClearingAnimation)) {
 			const nextTetromino = TETROMINOES[nextPiece];
-			const previewX = offsetX + gridWidth + 10;
-			const previewY = offsetY + 10;
-			const previewSize = Math.floor(cellSize * 0.7);
+			const previewSize = Math.max(8, Math.floor(cellSize * 0.6));
+			const previewPadding = 4;
+			const previewWidth = 4 * previewSize + previewPadding * 2;
+			const previewHeight = 2 * previewSize + previewPadding * 2 + 12;
+			const previewX = offsetX + gridWidth - previewWidth;
+			const previewY = offsetY;
 
-			ctx.fillStyle = textColor;
-			ctx.font = `bold ${Math.max(10, cellSize * 0.5)}px monospace`;
-			ctx.textAlign = 'left';
-			ctx.fillText('NEXT', previewX, previewY);
+			// Semi-transparent background
+			ctx.fillStyle = isAccentMode ? 'rgba(255, 255, 255, 0.3)' : (isDarkMode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.5)');
+			ctx.fillRect(previewX, previewY, previewWidth, previewHeight);
+
+			// Only show "NEXT" label if there's enough space
+			if (cellSize >= 12) {
+				ctx.fillStyle = textColor;
+				ctx.font = `bold ${Math.max(8, previewSize * 0.8)}px monospace`;
+				ctx.textAlign = 'left';
+				ctx.fillText('NEXT', previewX + previewPadding, previewY + 10);
+			}
 
 			const nextColor = colors[nextPiece];
+			const pieceOffsetY = cellSize >= 12 ? 14 : 4;
 			for (let row = 0; row < nextTetromino.shape.length; row++) {
 				for (let col = 0; col < nextTetromino.shape[row].length; col++) {
 					if (nextTetromino.shape[row][col]) {
 						drawBlock(
-							previewX + col * previewSize,
-							previewY + 10 + row * previewSize,
+							previewX + previewPadding + col * previewSize,
+							previewY + pieceOffsetY + row * previewSize,
 							nextColor,
 							previewSize
 						);
@@ -631,46 +725,58 @@
 			}
 		}
 
-		// Draw score
-		ctx.fillStyle = textColor;
-		ctx.font = `bold ${Math.max(10, cellSize * 0.6)}px monospace`;
-		ctx.textAlign = 'left';
-
-		const infoX = offsetX + gridWidth + 10;
-		const infoY = offsetY + 80;
-
+		// Draw score (top-left corner overlay)
 		if (gameState === 'playing' || gameState === 'gameover' || isClearingAnimation) {
-			ctx.fillText(`${score}`, infoX, infoY);
-			ctx.font = `${Math.max(8, cellSize * 0.4)}px monospace`;
-			ctx.fillText(`LN ${lines}`, infoX, infoY + 15);
-			ctx.fillText(`LV ${level}`, infoX, infoY + 28);
+			const scoreSize = Math.max(10, cellSize * 0.6);
+			const scorePadding = 4;
+
+			// Semi-transparent background
+			ctx.fillStyle = isAccentMode ? 'rgba(255, 255, 255, 0.3)' : (isDarkMode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.5)');
+			const scoreBoxWidth = Math.max(40, scoreSize * 4);
+			const scoreBoxHeight = cellSize >= 12 ? scoreSize * 2.5 : scoreSize * 1.5;
+			ctx.fillRect(offsetX, offsetY, scoreBoxWidth, scoreBoxHeight);
+
+			ctx.fillStyle = textColor;
+			ctx.font = `bold ${scoreSize}px monospace`;
+			ctx.textAlign = 'left';
+			ctx.fillText(`${score}`, offsetX + scorePadding, offsetY + scoreSize);
+
+			if (cellSize >= 12) {
+				ctx.font = `${Math.max(8, scoreSize * 0.6)}px monospace`;
+				ctx.fillText(`L${level}`, offsetX + scorePadding, offsetY + scoreSize * 1.8);
+			}
 		}
 
 		// Draw game over
 		if (gameState === 'gameover') {
 			ctx.fillStyle = textColor;
-			ctx.font = `bold ${Math.max(12, cellSize * 0.8)}px monospace`;
+			const gameOverSize = Math.max(12, Math.min(cellSize * 0.8, 24));
+			ctx.font = `bold ${gameOverSize}px monospace`;
 			ctx.textAlign = 'center';
-			ctx.fillText('GAME', offsetX + gridWidth / 2, offsetY + gridHeight / 2 - 10);
-			ctx.fillText('OVER', offsetX + gridWidth / 2, offsetY + gridHeight / 2 + 15);
+			ctx.fillText('GAME', offsetX + gridWidth / 2, offsetY + gridHeight / 2 - gameOverSize * 0.3);
+			ctx.fillText('OVER', offsetX + gridWidth / 2, offsetY + gridHeight / 2 + gameOverSize * 0.9);
 		}
 
 		// Draw start screen with controls
 		if (gameState === 'idle') {
 			ctx.fillStyle = textColor;
-			ctx.font = `bold ${Math.max(10, cellSize * 0.6)}px monospace`;
 			ctx.textAlign = 'center';
 
-			const centerX = canvasWidth / 2;
-			const centerY = canvasHeight / 2;
+			const centerX = offsetX + gridWidth / 2;
+			const centerY = offsetY + gridHeight / 2;
+			const titleSize = Math.max(12, Math.min(cellSize * 0.8, 20));
 
-			ctx.fillText('TETRIS', centerX, centerY - 40);
+			ctx.font = `bold ${titleSize}px monospace`;
+			ctx.fillText('TETRIS', centerX, centerY - titleSize);
 
-			ctx.font = `${Math.max(8, cellSize * 0.4)}px monospace`;
-			ctx.fillText('\u2190\u2192 or A/D: Move', centerX, centerY - 10);
-			ctx.fillText('\u2191 or W: Rotate', centerX, centerY + 8);
-			ctx.fillText('\u2193 or S: Soft drop', centerX, centerY + 26);
-			ctx.fillText('SPACE: Hard drop', centerX, centerY + 44);
+			// Only show controls on larger cards
+			if (cellSize >= 15) {
+				const controlSize = Math.max(8, cellSize * 0.35);
+				ctx.font = `${controlSize}px monospace`;
+				ctx.fillText('\u2190\u2192 Move', centerX, centerY + controlSize * 0.5);
+				ctx.fillText('\u2191 Rotate  \u2193 Down', centerX, centerY + controlSize * 2);
+				ctx.fillText('SPACE Drop', centerX, centerY + controlSize * 3.5);
+			}
 		}
 
 		animationId = requestAnimationFrame(gameLoop);
@@ -721,7 +827,7 @@
 	{#if gameState === 'idle' || gameState === 'gameover'}
 		<button
 			onclick={startGame}
-			class="absolute bottom-4 left-1/2 -translate-x-1/2 transform cursor-pointer rounded-lg border-2 border-base-800 bg-base-100/50 px-4 py-2 font-mono text-xs font-bold text-base-800 transition-colors hover:bg-base-800 hover:text-base-100 dark:border-base-200 dark:bg-base-800/50 dark:text-base-200 dark:hover:bg-base-200 dark:hover:text-base-800 accent:border-base-900 accent:bg-white/30 accent:text-base-900 accent:hover:bg-base-900 accent:hover:text-white"
+			class="absolute bottom-4 left-1/2 -translate-x-1/2 transform cursor-pointer rounded-lg border-2 border-base-800 bg-base-100/80 px-4 py-2 font-mono text-xs font-bold text-base-800 transition-colors hover:bg-base-800 hover:text-base-100 dark:border-base-200 dark:bg-base-800/80 dark:text-base-200 dark:hover:bg-base-200 dark:hover:text-base-800 accent:border-base-900 accent:bg-white/80 accent:text-base-900 accent:hover:bg-base-900 accent:hover:text-white"
 		>
 			{gameState === 'gameover' ? 'PLAY AGAIN' : 'START'}
 		</button>
