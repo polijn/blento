@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { ContentComponentProps } from '../types';
+	import type { ContentComponentProps } from '../../types';
 	import { onMount, onDestroy } from 'svelte';
 	import Tetris8BitMusic from './Tetris8Bit.mp3';
 	import { isTyping } from '$lib/helper';
@@ -97,9 +97,8 @@
 
 	function getColorScheme(): Record<string, string> {
 		// Get colors that contrast well with the current background
-		const excludeColors = isAccentMode && detectedAccentFamily
-			? COLOR_FAMILIES[detectedAccentFamily] || []
-			: [];
+		const excludeColors =
+			isAccentMode && detectedAccentFamily ? COLOR_FAMILIES[detectedAccentFamily] || [] : [];
 
 		// Pick 7 contrasting vibrant colors for the 7 tetrominos
 		const availableColors = Object.entries(VIBRANT_COLORS)
@@ -126,7 +125,7 @@
 				S: '#34d399', // emerald-400
 				Z: '#fb7185', // rose-400
 				J: '#60a5fa', // blue-400
-				L: '#a3e635'  // lime-400
+				L: '#a3e635' // lime-400
 			};
 		}
 
@@ -151,19 +150,49 @@
 			S: '#10b981', // emerald
 			Z: '#f43f5e', // rose
 			J: '#3b82f6', // blue
-			L: '#84cc16'  // lime
+			L: '#84cc16' // lime
 		};
 	}
 
 	// Tetromino definitions (each has rotations)
 	const TETROMINOES = {
 		I: { shape: [[1, 1, 1, 1]] },
-		O: { shape: [[1, 1], [1, 1]] },
-		T: { shape: [[0, 1, 0], [1, 1, 1]] },
-		S: { shape: [[0, 1, 1], [1, 1, 0]] },
-		Z: { shape: [[1, 1, 0], [0, 1, 1]] },
-		J: { shape: [[1, 0, 0], [1, 1, 1]] },
-		L: { shape: [[0, 0, 1], [1, 1, 1]] }
+		O: {
+			shape: [
+				[1, 1],
+				[1, 1]
+			]
+		},
+		T: {
+			shape: [
+				[0, 1, 0],
+				[1, 1, 1]
+			]
+		},
+		S: {
+			shape: [
+				[0, 1, 1],
+				[1, 1, 0]
+			]
+		},
+		Z: {
+			shape: [
+				[1, 1, 0],
+				[0, 1, 1]
+			]
+		},
+		J: {
+			shape: [
+				[1, 0, 0],
+				[1, 1, 1]
+			]
+		},
+		L: {
+			shape: [
+				[0, 0, 1],
+				[1, 1, 1]
+			]
+		}
 	};
 
 	type TetrominoType = keyof typeof TETROMINOES;
@@ -202,7 +231,12 @@
 		}
 	}
 
-	function playTone(frequency: number, duration: number, type: OscillatorType = 'square', volume: number = 0.04) {
+	function playTone(
+		frequency: number,
+		duration: number,
+		type: OscillatorType = 'square',
+		volume: number = 0.04
+	) {
 		if (!audioCtx) return;
 		try {
 			const oscillator = audioCtx.createOscillator();
@@ -604,7 +638,12 @@
 		const elapsed = performance.now() - touchStartTime;
 
 		// Quick tap (no movement) - rotate
-		if (!hasMoved && Math.abs(dx) < SWIPE_THRESHOLD && Math.abs(dy) < SWIPE_THRESHOLD && elapsed < 300) {
+		if (
+			!hasMoved &&
+			Math.abs(dx) < SWIPE_THRESHOLD &&
+			Math.abs(dy) < SWIPE_THRESHOLD &&
+			elapsed < 300
+		) {
 			rotatePiece();
 			return;
 		}
@@ -683,9 +722,17 @@
 		detectTheme();
 
 		const colors = getColorScheme();
-		const textColor = isAccentMode ? '#000000' : (isDarkMode ? '#ffffff' : '#000000');
-		const gridBgColor = isAccentMode ? 'rgba(0, 0, 0, 0.15)' : (isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.05)');
-		const gridLineColor = isAccentMode ? 'rgba(0, 0, 0, 0.1)' : (isDarkMode ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.08)');
+		const textColor = isAccentMode ? '#000000' : isDarkMode ? '#ffffff' : '#000000';
+		const gridBgColor = isAccentMode
+			? 'rgba(0, 0, 0, 0.15)'
+			: isDarkMode
+				? 'rgba(255, 255, 255, 0.05)'
+				: 'rgba(0, 0, 0, 0.05)';
+		const gridLineColor = isAccentMode
+			? 'rgba(0, 0, 0, 0.1)'
+			: isDarkMode
+				? 'rgba(255, 255, 255, 0.05)'
+				: 'rgba(0, 0, 0, 0.08)';
 
 		const canvasWidth = canvas.width;
 		const canvasHeight = canvas.height;
@@ -746,11 +793,21 @@
 							// Already swept - show white fading out
 							const fadeProgress = Math.min(1, (swooshCol - col - 1) / 2);
 							ctx.fillStyle = `rgba(255, 255, 255, ${1 - fadeProgress})`;
-							ctx.fillRect(offsetX + col * cellSize, offsetY + row * cellSize, cellSize - 1, cellSize - 1);
+							ctx.fillRect(
+								offsetX + col * cellSize,
+								offsetY + row * cellSize,
+								cellSize - 1,
+								cellSize - 1
+							);
 						} else if (col < swooshCol) {
 							// Sweep edge - bright white
 							ctx.fillStyle = '#ffffff';
-							ctx.fillRect(offsetX + col * cellSize, offsetY + row * cellSize, cellSize - 1, cellSize - 1);
+							ctx.fillRect(
+								offsetX + col * cellSize,
+								offsetY + row * cellSize,
+								cellSize - 1,
+								cellSize - 1
+							);
 						} else {
 							// Not yet swept - show block
 							drawBlock(offsetX + col * cellSize, offsetY + row * cellSize, cellColor);
@@ -817,7 +874,11 @@
 			const previewY = offsetY;
 
 			// Semi-transparent background
-			ctx.fillStyle = isAccentMode ? 'rgba(255, 255, 255, 0.3)' : (isDarkMode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.5)');
+			ctx.fillStyle = isAccentMode
+				? 'rgba(255, 255, 255, 0.3)'
+				: isDarkMode
+					? 'rgba(0, 0, 0, 0.4)'
+					: 'rgba(255, 255, 255, 0.5)';
 			ctx.fillRect(previewX, previewY, previewWidth, previewHeight);
 
 			// Only show "NEXT" label if there's enough space
@@ -850,7 +911,11 @@
 			const scorePadding = 4;
 
 			// Semi-transparent background
-			ctx.fillStyle = isAccentMode ? 'rgba(255, 255, 255, 0.3)' : (isDarkMode ? 'rgba(0, 0, 0, 0.4)' : 'rgba(255, 255, 255, 0.5)');
+			ctx.fillStyle = isAccentMode
+				? 'rgba(255, 255, 255, 0.3)'
+				: isDarkMode
+					? 'rgba(0, 0, 0, 0.4)'
+					: 'rgba(255, 255, 255, 0.5)';
 			const scoreBoxWidth = Math.max(40, scoreSize * 4);
 			const scoreBoxHeight = cellSize >= 12 ? scoreSize * 2.5 : scoreSize * 1.5;
 			ctx.fillRect(offsetX, offsetY, scoreBoxWidth, scoreBoxHeight);
@@ -957,7 +1022,7 @@
 	{#if gameState === 'idle' || gameState === 'gameover'}
 		<button
 			onclick={startGame}
-			class="absolute bottom-4 left-1/2 -translate-x-1/2 transform cursor-pointer rounded-lg border-2 border-base-800 bg-base-100/80 px-4 py-2 font-mono text-xs font-bold text-base-800 transition-colors hover:bg-base-800 hover:text-base-100 dark:border-base-200 dark:bg-base-800/80 dark:text-base-200 dark:hover:bg-base-200 dark:hover:text-base-800 accent:border-base-900 accent:bg-white/80 accent:text-base-900 accent:hover:bg-base-900 accent:hover:text-white"
+			class="border-base-800 bg-base-100/80 text-base-800 hover:bg-base-800 hover:text-base-100 dark:border-base-200 dark:bg-base-800/80 dark:text-base-200 dark:hover:bg-base-200 dark:hover:text-base-800 accent:border-base-900 accent:bg-white/80 accent:text-base-900 accent:hover:bg-base-900 accent:hover:text-white absolute bottom-4 left-1/2 -translate-x-1/2 transform cursor-pointer rounded-lg border-2 px-4 py-2 font-mono text-xs font-bold transition-colors"
 		>
 			{gameState === 'gameover' ? 'PLAY AGAIN' : 'START'}
 		</button>

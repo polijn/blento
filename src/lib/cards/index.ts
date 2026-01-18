@@ -5,7 +5,7 @@ import { BlueskyMediaCardDefinition } from './BlueskyMediaCard';
 import { BlueskyPostCardDefinition } from './BlueskyPostCard';
 import { DinoGameCardDefinition } from './GameCards/DinoGameCard';
 import { EmbedCardDefinition } from './EmbedCard';
-import { TetrisCardDefinition } from './TetrisCard';
+import { TetrisCardDefinition } from './GameCards/TetrisCard';
 import { ImageCardDefinition } from './ImageCard';
 import { LinkCardDefinition } from './LinkCard';
 import { LivestreamCardDefitition, LivestreamEmbedCardDefitition } from './LivestreamCard';
