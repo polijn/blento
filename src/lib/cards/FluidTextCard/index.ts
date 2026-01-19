@@ -9,10 +9,7 @@ export const FluidTextCardDefinition = {
 	createNew: (card) => {
 		card.cardType = 'fluid-text';
 		card.cardData = {
-			text: '',
-			fontWeight: '900',
-			fontFamily: 'Arial',
-			fontSize: 0.33
+			text: ''
 		};
 		card.w = 4;
 		card.h = 2;
@@ -23,6 +20,7 @@ export const FluidTextCardDefinition = {
 	settingsComponent: FluidTextCardSettings,
 	sidebarButtonText: 'Fluid Text',
 	defaultColor: 'transparent',
+	allowSetColor: false,
 	minW: 2,
 	minH: 2
 } as CardDefinition & { type: 'fluid-text' };
