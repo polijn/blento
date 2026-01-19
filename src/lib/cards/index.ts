@@ -18,6 +18,9 @@ import { VideoCardDefinition } from './VideoCard';
 import { YoutubeCardDefinition } from './YoutubeVideoCard';
 import { BlueskyProfileCardDefinition } from './BlueskyProfileCard';
 import { GithubProfileCardDefitition } from './GitHubProfileCard';
+import { FluidTextCardDefinition } from './FluidTextCard';
+import { PopfeedReviewsCardDefinition } from './PopfeedReviews';
+import { TealFMPlaysCardDefinition } from './TealFMPlaysCard';
 
 export const AllCardDefinitions = [
 	ImageCardDefinition,
@@ -38,7 +41,10 @@ export const AllCardDefinitions = [
 	DinoGameCardDefinition,
 	BlueskyProfileCardDefinition,
 	GithubProfileCardDefitition,
-	TetrisCardDefinition
+	TetrisCardDefinition,
+	FluidTextCardDefinition,
+	PopfeedReviewsCardDefinition,
+	TealFMPlaysCardDefinition
 ] as const;
 
 export const CardDefinitionsByType = AllCardDefinitions.reduce(
