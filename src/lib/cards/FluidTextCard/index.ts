@@ -13,16 +13,15 @@ export const FluidTextCardDefinition = {
 		card.cardData = {
 			text: ''
 		};
-		card.w = 4;
-		card.h = 2;
-		card.mobileW = 4;
-		card.mobileH = 2;
+		card.w = 8;
+		card.h = 3;
+		card.mobileW = 8;
+		card.mobileH = 4;
 	},
 	creationModalComponent: CreateFluidTextCardModal,
 	settingsComponent: FluidTextCardSettings,
 	sidebarButtonText: 'Fluid Text',
 	defaultColor: 'transparent',
 	allowSetColor: false,
-	minW: 2,
-	minH: 2
+	minW: 2
 } as CardDefinition & { type: 'fluid-text' };
