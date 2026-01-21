@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { Button, Input, Modal, Subheading } from '@foxui/core';
-	import { PUBLIC_GIPHY_API_TOKEN } from '$env/static/public';
+	import { env } from '$env/dynamic/public';
 	import PoweredByGiphy from './PoweredByGiphy.gif';
 
 	type GiphyGif = {
@@ -46,7 +46,7 @@
 		isLoading = true;
 		try {
 			const url = new URL('https://api.giphy.com/v1/gifs/trending');
-			url.searchParams.set('api_key', PUBLIC_GIPHY_API_TOKEN);
+			url.searchParams.set('api_key', env.PUBLIC_GIPHY_API_TOKEN);
 			url.searchParams.set('limit', '24');
 			url.searchParams.set('rating', 'g');
 
@@ -71,7 +71,7 @@
 		isLoading = true;
 		try {
 			const url = new URL('https://api.giphy.com/v1/gifs/search');
-			url.searchParams.set('api_key', PUBLIC_GIPHY_API_TOKEN);
+			url.searchParams.set('api_key', env.PUBLIC_GIPHY_API_TOKEN);
 			url.searchParams.set('q', query);
 			url.searchParams.set('limit', '24');
 			url.searchParams.set('rating', 'g');
