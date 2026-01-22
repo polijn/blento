@@ -154,7 +154,7 @@
 	let changePopoverOpen = $state(false);
 
 	const changeOptions = $derived(
-		AllCardDefinitions.filter((def) => def.type !== item.cardType && def.canChange?.(item))
+		AllCardDefinitions.filter((def) => def.canChange?.(item))
 	);
 
 	function applyChange(def: (typeof AllCardDefinitions)[number]) {
@@ -185,7 +185,7 @@
 	{#snippet controls()}
 		<!-- class="bg-base-100 border-base-200 dark:bg-base-800 dark:border-base-700 absolute -top-3 -left-3 hidden cursor-pointer items-center justify-center rounded-full border p-2 shadow-lg group-focus-within:inline-flex group-hover/card:inline-flex" -->
 		{#if canEdit()}
-			{#if changeOptions.length > 0}
+			{#if changeOptions.length > 1}
 				<div
 					class={[
 						'absolute -top-3 -right-3 hidden group-focus-within:inline-flex group-hover/card:inline-flex',
@@ -215,11 +215,11 @@
 						{/snippet}
 
 						<div class="flex min-w-36 flex-col gap-1">
-							<Label class="mb-2">Change card to</Label>
+							<Label class="mb-2">Card type</Label>
 							{#each changeOptions as changeDef}
 								<Button
 									class="justify-start"
-									variant="ghost"
+									variant={changeDef.type === item.cardType ? 'primary' : 'ghost'}
 									onclick={() => applyChange(changeDef)}
 								>
 									{getChangeLabel(changeDef)}
