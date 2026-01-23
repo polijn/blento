@@ -1,7 +1,6 @@
 import type { CardDefinition } from '../types';
 import { getRecord, listRecords, parseUri } from '$lib/atproto';
 import PhotoGalleryCard from './PhotoGalleryCard.svelte';
-import type { Record as ListRecord } from '@atproto/api/dist/client/types/com/atproto/repo/listRecords';
 
 export const PhotoGalleryCardDefinition = {
 	type: 'photoGallery',
@@ -17,9 +16,9 @@ export const PhotoGalleryCardDefinition = {
 		card.mobileH = 6;
 	},
 	loadData: async (items) => {
-		const itemsData: Record<string, ListRecord[]> = {};
+		const itemsData: Record<string, unknown[]> = {};
 
-		const galleryItems: Record<string, ListRecord[] | undefined> = {
+		const galleryItems: Record<string, unknown[] | undefined> = {
 			'social.grain.gallery.item': undefined
 		};
 

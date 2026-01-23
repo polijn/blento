@@ -1,6 +1,6 @@
-import { RichText } from '@atproto/api';
 import type { PostData, PostEmbed } from '../post';
-import type { PostView } from '@atproto/api/dist/client/types/app/bsky/feed/defs';
+import type { PostView } from '@atcute/bluesky/types/app/feed/defs';
+import { segmentize, type Facet, type RichtextSegment } from '@atcute/bluesky-richtext-segmenter';
 
 function blueskyEmbedTypeToEmbedType(type: string) {
 	switch (type) {
@@ -48,7 +48,7 @@ export function blueskyPostToPostData(
 		// 			}
 		// 		: undefined,
 		author: {
-			displayName: post.author.displayName,
+			displayName: post.author.displayName || '',
 			handle: post.author.handle,
 			avatar: post.author.avatar,
 			href: `${baseUrl}/profile/${post.author.did}`
@@ -56,7 +56,7 @@ export function blueskyPostToPostData(
 		replyCount: post.replyCount ?? 0,
 		repostCount: post.repostCount ?? 0,
 		likeCount: post.likeCount ?? 0,
-		createdAt: post.record.createdAt ?? 0,
+		createdAt: post.record.createdAt as string,
 
 		embed: post.embed
 			? ({
@@ -91,30 +91,43 @@ export function blueskyPostToPostData(
 	};
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function blueskyPostToHTML(post: any, baseUrl: string = 'https://bsky.app') {
+const renderSegment = (segment: RichtextSegment, baseUrl: string) => {
+	const { text, features } = segment;
+
+	if (!features) {
+		return `<span>${text}</span>`;
+	}
+
+	// segments can have multiple features, use the first one
+	const feature = features[0];
+
+	const createLink = (href: string, text: string) => {
+		return `<a target="_blank" rel="noopener noreferrer nofollow" href="${encodeURI(href)}">${text}</a>`;
+	};
+
+	switch (feature.$type) {
+		case 'app.bsky.richtext.facet#mention':
+			return createLink(`${baseUrl}/profile/${segment.handle}`, segment.text);
+		case 'app.bsky.richtext.facet#link':
+			return createLink(feature.uri, segment.text);
+		case 'app.bsky.richtext.facet#tag':
+			return createLink(`${baseUrl}/hashtag/${segment.tag}`, segment.text);
+		default:
+			return `<span>${text}</span>`;
+	}
+};;
+
+const RichText = ({ text, facets }: { text: string; facets?: Facet[] }, baseUrl: string) => {
+	const segments = segmentize(text, facets);
+	return segments.map((v) => renderSegment(v, baseUrl)).join('');
+};
+
+export function blueskyPostToHTML(post: PostView, baseUrl: string = 'https://bsky.app') {
 	if (!post?.record) {
 		return '';
 	}
-	const rt = new RichText(post.record);
-	let html = '';
 
-	const createLink = (href: string, text: string) => {
-		return `<a target="_blank" rel="noopener noreferrer nofollow" href="${encodeURI(href)}">${encodeURI(text)}</a>`;
-	};
-
-	for (const segment of rt.segments()) {
-		if (!segment) continue;
-		if (segment.isLink() && segment.link?.uri) {
-			html += createLink(segment.link?.uri, segment.text);
-		} else if (segment.isMention() && segment.mention?.did) {
-			html += createLink(`${baseUrl}/profile/${segment.mention?.did}`, segment.text);
-		} else if (segment.isTag() && segment.tag?.tag) {
-			html += createLink(`${baseUrl}/hashtag/${segment.tag?.tag}`, segment.text);
-		} else {
-			html += segment.text;
-		}
-	}
+	const html = RichText({ text: post.record.text, facets: post.record.facets }, baseUrl);
 
 	return html.replace(/\n/g, '<br>');
 }

@@ -1,13 +1,13 @@
 <script lang="ts">
 	import type { ContentComponentProps } from '$lib/cards/types';
 	import { getAdditionalUserData } from '$lib/website/context';
-	import type { ProfileViewDetailed } from '@atproto/api/dist/client/types/app/bsky/actor/defs';
+	import type { AppBskyActorDefs } from '@atcute/bluesky';
 
 	let { item }: ContentComponentProps = $props();
 
 	const data = getAdditionalUserData();
 	// svelte-ignore state_referenced_locally
-	const profiles = data[item.cardType] as ProfileViewDetailed[];
+	const profiles = data[item.cardType] as AppBskyActorDefs.ProfileViewDetailed[];
 
 	$inspect(profiles);
 </script>
@@ -27,7 +27,7 @@
 					alt=""
 					loading="lazy"
 				/>
-				<div class="text-md line-clamp-1 text-center font-bold max-w-full">
+				<div class="text-md line-clamp-1 max-w-full text-center font-bold">
 					{profile.displayName || profile.handle}
 				</div>
 			</a>

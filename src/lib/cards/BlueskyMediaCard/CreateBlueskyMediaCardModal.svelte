@@ -2,8 +2,8 @@
 	import { Button, Input, Label, Modal, Subheading } from '@foxui/core';
 	import type { CreationModalComponentProps } from '../types';
 	import { onMount } from 'svelte';
-	import { AtpBaseClient } from '@atproto/api';
 	import { getDidContext } from '$lib/website/context';
+	import { getAuthorFeed } from '$lib/atproto/methods';
 
 	let { item = $bindable(), oncreate, oncancel }: CreationModalComponentProps = $props();
 
@@ -14,14 +14,9 @@
 	let isLoading = $state(true);
 
 	onMount(async () => {
-		const agent = new AtpBaseClient({ service: 'https://api.bsky.app' });
-		const authorFeed = await agent.app.bsky.feed.getAuthorFeed({
-			actor: did,
-			filter: 'posts_with_media',
-			limit: 100
-		});
-
-		for (let post of authorFeed.data.feed) {
+		const authorFeed = await getAuthorFeed({did})
+		
+		for (let post of authorFeed?.feed ?? []) {
 			for (let image of post.post.embed?.images ?? []) {
 				mediaList.push(image);
 			}

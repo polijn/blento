@@ -70,6 +70,30 @@ export async function getDetailedProfile(data?: { did?: Did; client?: Client }) 
 	return response.data;
 }
 
+export async function getAuthorFeed(data?: {
+	did?: Did;
+	client?: Client;
+	filter?: string;
+	limit?: number;
+}) {
+	data ??= {};
+	data.did ??= user.did;
+
+	if (!data.did) throw new Error('Error getting detailed profile: no did');
+
+	data.client ??= new Client({
+		handler: simpleFetchHandler({ service: 'https://public.api.bsky.app' })
+	});
+
+	const response = await data.client.get('app.bsky.feed.getAuthorFeed', {
+		params: { actor: data.did, filter: data.filter ?? 'posts_with_media', limit: data.limit || 100 }
+	});
+
+	if (!response.ok) return;
+
+	return response.data;
+}
+
 export async function getClient({ did }: { did: Did }) {
 	const pds = await getPDS(did);
 	if (!pds) throw new Error('PDS not found');

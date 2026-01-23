@@ -1,7 +1,7 @@
-import { AtpBaseClient } from '@atproto/api';
 import type { CardDefinition } from '../types';
 import BlueskyPostCard from './BlueskyPostCard.svelte';
 import SidebarItemBlueskyPostCard from './SidebarItemBlueskyPostCard.svelte';
+import { getAuthorFeed } from '$lib/atproto/methods';
 
 export const BlueskyPostCardDefinition = {
 	type: 'latestPost',
@@ -15,13 +15,9 @@ export const BlueskyPostCardDefinition = {
 	},
 	sidebarComponent: SidebarItemBlueskyPostCard,
 	loadData: async (items, { did }) => {
-		const agent = new AtpBaseClient({ service: 'https://api.bsky.app' });
-		const authorFeed = await agent.app.bsky.feed.getAuthorFeed({
-			actor: did,
-			filter: 'posts_no_replies',
-			limit: 2
-		});
-		return JSON.parse(JSON.stringify(authorFeed.data));
+		const authorFeed = await getAuthorFeed({ did, filter: 'posts_no_replies', limit: 2 });
+
+		return JSON.parse(JSON.stringify(authorFeed));
 	},
 	minW: 4
 } as CardDefinition & { type: 'latestPost' };

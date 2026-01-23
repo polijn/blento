@@ -2,14 +2,14 @@ import { env } from '$env/dynamic/public';
 import type { UserCache, WebsiteData } from '$lib/types.js';
 import { loadData } from '$lib/website/load';
 import type { Handle } from '@atcute/lexicons';
-import type { ProfileViewDetailed } from '@atproto/api/dist/client/types/app/bsky/actor/defs.js';
+import type { AppBskyActorDefs } from '@atcute/bluesky';
 
 export async function load({ platform }) {
 	const cache = platform?.env?.USER_DATA_CACHE;
 
 	const list = await cache?.list();
 
-	const profiles: ProfileViewDetailed[] = [];
+	const profiles: AppBskyActorDefs.ProfileViewDetailed[] = [];
 	for (const value of list?.keys ?? []) {
 		// check if at least one card
 		const result = await cache?.get(value.name);

@@ -1,15 +1,15 @@
 <script lang="ts">
-	import type { FeedViewPost } from '@atproto/api/dist/client/types/app/bsky/feed/defs';
 	import { Post } from '../post';
 	import { blueskyPostToPostData } from '.';
 	import type { Snippet } from 'svelte';
+	import type { PostView } from '@atcute/bluesky/types/app/feed/defs';
 
 	let {
 		feedViewPost,
 		children,
 		showLogo = false,
 		...restProps
-	}: { feedViewPost?: FeedViewPost; children?: Snippet; showLogo?: boolean } = $props();
+	}: { feedViewPost?: PostView; children?: Snippet; showLogo?: boolean } = $props();
 
 	const postData = $derived(feedViewPost ? blueskyPostToPostData(feedViewPost) : undefined);
 </script>

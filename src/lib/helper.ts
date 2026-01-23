@@ -3,7 +3,7 @@ import { COLUMNS, margin, mobileMargin } from '$lib';
 import { CardDefinitionsByType } from './cards';
 import { deleteRecord, putRecord } from '$lib/atproto';
 import { toast } from '@foxui/core';
-import { TID } from '@atproto/common-web';
+import * as TID from '@atcute/tid';
 
 export function clamp(value: number, min: number, max: number): number {
 	return Math.min(Math.max(value, min), max);
@@ -498,7 +498,7 @@ export async function savePage(
 
 export function createEmptyCard(page: string) {
 	return {
-		id: TID.nextStr(),
+		id: TID.now(),
 		x: 0,
 		y: 0,
 		w: 2,

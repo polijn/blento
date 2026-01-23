@@ -1,5 +1,5 @@
-import type { At } from '@atcute/client/lexicons';
-import type { ProfileViewDetailed } from '@atproto/api/dist/client/types/app/bsky/actor/defs';
+import type { Blob } from '@atcute/lexicons';
+import type { AppBskyActorDefs } from '@atcute/bluesky';
 
 export type Item = {
 	id: string;
@@ -39,7 +39,7 @@ export type WebsiteData = {
 				url?: string;
 				name?: string;
 				description?: string;
-				icon?: At.Blob;
+				icon?: Blob;
 				preferences?: {
 					/**
 					 * @deprecated
@@ -47,12 +47,13 @@ export type WebsiteData = {
 					 * use hideProfileSection instead
 					 */
 					hideProfile?: boolean;
+
 					// use this instead
 					hideProfileSection?: boolean;
 				};
 		  }
 		| undefined;
-	profile: ProfileViewDetailed;
+	profile: AppBskyActorDefs.ProfileViewDetailed;
 
 	additionalData: Record<string, unknown>;
 	updatedAt: number;

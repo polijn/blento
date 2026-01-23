@@ -4,9 +4,9 @@
 import type { CardDefinition } from '../types';
 import { listRecords, putRecord } from '$lib/atproto';
 import StatusphereCard from './StatusphereCard.svelte';
-import { TID } from '@atproto/common-web';
 import EditStatusphereCard from './EditStatusphereCard.svelte';
 import icons from './icons.json';
+import * as TID from '@atcute/tid';
 
 export const StatusphereCardDefinition = {
 	type: 'statusphere',
@@ -28,7 +28,7 @@ export const StatusphereCardDefinition = {
 	upload: async (item) => {
 		if (item.cardData.hasUpdate) {
 			await putRecord({
-				rkey: TID.nextStr(),
+				rkey: TID.now(),
 				collection: 'xyz.statusphere.status',
 				record: {
 					status: item.cardData.emoji,

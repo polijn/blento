@@ -1,5 +1,4 @@
 import { getDetailedProfile, listRecords, resolveHandle, parseUri } from '$lib/atproto';
-import type { Record as ListRecord } from '@atproto/api/dist/client/types/com/atproto/repo/listRecords';
 import { CardDefinitionsByType } from '$lib/cards';
 import type { Item, UserCache, WebsiteData } from '$lib/types';
 import { compactItems, fixAllCollisions } from '$lib/helper';
@@ -31,7 +30,7 @@ export async function getCache(handle: string, page: string, cache?: UserCache) 
 
 		result.page = 'blento.' + page;
 
-		result.publication = (result.publications as ListRecord[]).find(
+		result.publication = (result.publications as Awaited<ReturnType<typeof listRecords>>).find(
 			(v) => parseUri(v.uri).rkey === result.page
 		)?.value;
 
@@ -65,13 +64,13 @@ export async function loadData(
 
 	const cards = await listRecords({ did, collection: 'app.blento.card' }).catch(() => {
 		console.error('error getting records for collection app.blento.card');
-		return [] as ListRecord[];
+		return [] as Awaited<ReturnType<typeof listRecords>>;
 	});
 
 	const publications = await listRecords({ did, collection: 'site.standard.publication' }).catch(
 		() => {
 			console.error('error getting records for collection site.standard.publication');
-			return [] as ListRecord[];
+			return [] as Awaited<ReturnType<typeof listRecords>>;
 		}
 	);
 
@@ -128,9 +127,9 @@ export async function loadData(
 	await cache?.put?.(handle, stringifiedResult);
 
 	const parsedResult = JSON.parse(stringifiedResult);
-	parsedResult.publication = (parsedResult.publications as ListRecord[]).find(
-		(v) => parseUri(v.uri).rkey === parsedResult.page
-	)?.value;
+	parsedResult.publication = (
+		parsedResult.publications as Awaited<ReturnType<typeof listRecords>>
+	).find((v) => parseUri(v.uri).rkey === parsedResult.page)?.value;
 
 	delete parsedResult['publications'];
 
