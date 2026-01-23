@@ -1007,6 +1007,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_noninteractive_tabindex a11y_no_noninteractive_element_interactions -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
 	bind:this={container}
 	class="relative h-full w-full overflow-hidden outline-none"

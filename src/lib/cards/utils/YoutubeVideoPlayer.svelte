@@ -21,16 +21,34 @@
 	import { cn } from '@foxui/core';
 	import { onDestroy, onMount } from 'svelte';
 
+	// Minimal Plyr interface for what we use
+	interface PlyrInstance {
+		source: {
+			type: string;
+			sources: { src: string; type: string }[];
+		};
+		on: (event: string, callback: () => void) => void;
+		play: () => void;
+		destroy: () => void;
+	}
+
+	interface PlyrConstructorType {
+		new (selector: string, options: Record<string, unknown>): PlyrInstance;
+	}
+
 	const { class: className }: { class?: string } = $props();
 
-	let Plyr = $state();
+	let PlyrConstructor: PlyrConstructorType | undefined = $state();
 
-	let player = $state();
+	let player: PlyrInstance | undefined = $state();
 
 	onMount(async () => {
-		if (!Plyr) Plyr = (await import('plyr')).default;
+		if (!PlyrConstructor) {
+			const plyrModule = (await import('plyr')) as unknown as { default: PlyrConstructorType };
+			PlyrConstructor = plyrModule.default;
+		}
 
-		const player = new Plyr('.js-player', {
+		player = new PlyrConstructor('.js-player', {
 			settings: ['captions', 'quality', 'loop', 'speed'],
 			controls: [
 				'play-large',
@@ -59,7 +77,7 @@
 
 		// when loaded play the video and go fullscreen
 		player.on('ready', () => {
-			player.play();
+			player?.play();
 			//player.fullscreen.enter();
 		});
 	});
@@ -87,7 +105,7 @@
 
 {#key videoPlayer.id}
 	{#if videoPlayer.id}
-		<div class="fixed inset-0 z-[100] flex h-screen w-screen items-center justify-center">
+		<div class="fixed inset-0 z-100 flex h-screen w-screen items-center justify-center">
 			<button
 				onclick={() => videoPlayer.hide()}
 				class="absolute inset-0 bg-black/70 backdrop-blur-sm"

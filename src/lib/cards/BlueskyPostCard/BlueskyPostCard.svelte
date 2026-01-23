@@ -19,8 +19,7 @@
 			feed = (
 				(await CardDefinitionsByType[item.cardType]?.loadData?.([], {
 					did,
-					handle,
-					platform: undefined
+					handle
 				})) as any
 			).feed;
 

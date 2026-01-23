@@ -127,7 +127,10 @@ export function blueskyPostToHTML(post: PostView, baseUrl: string = 'https://bsk
 		return '';
 	}
 
-	const html = RichText({ text: post.record.text, facets: post.record.facets }, baseUrl);
+	const html = RichText(
+		{ text: post.record.text as string, facets: post.record.facets as Facet[] },
+		baseUrl
+	);
 
 	return html.replace(/\n/g, '<br>');
 }

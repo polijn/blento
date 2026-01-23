@@ -40,8 +40,7 @@
 		if (!latestLivestream) {
 			latestLivestream = (await CardDefinitionsByType[item.cardType]?.loadData?.([], {
 				did,
-				handle,
-				platform: undefined
+				handle
 			})) as
 				| {
 						createdAt: string;
@@ -83,7 +82,7 @@
 					{:else if latestLivestream.online === false}
 						<Badge size="sm" class="accent:text-base-900">ended</Badge>
 					{:else}
-						<div class="h-[22px]"></div>
+						<div class="h-5.5"></div>
 					{/if}
 				</div>
 
