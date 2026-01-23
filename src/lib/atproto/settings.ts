@@ -1,4 +1,4 @@
-export const SITE = 'https://flo-bit.dev';
+export const SITE = 'https://blento.app';
 
 export const collections: string[] = [
 	'app.blento.card',
