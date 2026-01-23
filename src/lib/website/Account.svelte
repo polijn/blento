@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { client, login, logout } from '$lib/oauth';
+	import { user, login, logout } from '$lib/atproto';
 	import type { WebsiteData } from '$lib/types';
 	import { Button, Popover } from '@foxui/core';
 
@@ -12,19 +12,19 @@
 	let settingsPopoverOpen = $state(false);
 </script>
 
-{#if client.isLoggedIn && client.profile}
+{#if user.isLoggedIn && user.profile}
 	<div class="fixed top-4 right-4 z-20">
 		<Popover sideOffset={8} bind:open={settingsPopoverOpen} class="bg-base-100 dark:bg-base-900">
 			{#snippet child({ props })}
 				<button {...props}>
-					<img src={client.profile?.avatar} alt="" class="size-15 rounded-full" />
+					<img src={user.profile?.avatar} alt="" class="size-15 rounded-full" />
 				</button>
 			{/snippet}
 
 			<Button variant="ghost" onclick={logout}>Logout</Button>
 		</Popover>
 	</div>
-{:else if !client.isInitializing}
+{:else if !user.isInitializing}
 	<div
 		class="dark:bg-base-950 border-base-200 dark:border-base-900 fixed top-4 right-4 z-20 flex flex-col gap-4 rounded-2xl border bg-white p-4 shadow-lg"
 	>

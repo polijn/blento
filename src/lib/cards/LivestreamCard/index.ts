@@ -1,6 +1,4 @@
-import { client } from '$lib/oauth';
-import { listRecords } from '$lib/oauth/atproto';
-import { getImageBlobUrl } from '$lib/oauth/utils';
+import { user, listRecords, getImageBlobUrl } from '$lib/atproto';
 import type { CardDefinition } from '../types';
 import LivestreamCard from './LivestreamCard.svelte';
 import LivestreamEmbedCard from './LivestreamEmbedCard.svelte';
@@ -30,15 +28,15 @@ export const LivestreamCardDefitition = {
 					online?: boolean;
 			  }
 			| undefined;
-		const values = Object.values(records);
-		if (values?.length > 0) {
-			const latest = JSON.parse(JSON.stringify(values?.[0]));
+
+		if (records?.length) {
+			const latest = JSON.parse(JSON.stringify(records?.[0]));
 
 			latestLivestream = {
 				createdAt: latest.value.createdAt,
 				title: latest.value?.title as string,
 				thumb: latest.value?.thumb?.ref?.$link
-					? getImageBlobUrl({ link: latest.value.thumb.ref.$link, did })
+					? getImageBlobUrl({ blob: latest.value.thumb, did })
 					: undefined,
 				href: latest.value?.canonicalUrl || latest.value.url,
 				online: undefined
@@ -69,18 +67,18 @@ export const LivestreamCardDefitition = {
 	},
 
 	onUrlHandler: (url, item) => {
-		console.log(url, 'https://stream.place/' + client.profile?.handle);
-		if (url === 'https://stream.place/' + client.profile?.handle) {
+		console.log(url, 'https://stream.place/' + user.profile?.handle);
+		if (url === 'https://stream.place/' + user.profile?.handle) {
 			item.w = 4;
 			item.h = 4;
 			item.mobileH = 8;
 			item.mobileW = 8;
-			item.cardData.href = 'https://stream.place/' + client.profile?.handle;
+			item.cardData.href = 'https://stream.place/' + user.profile?.handle;
 			return item;
 		}
 	},
 
-	canChange: (item) => item.cardData.href === 'https://stream.place/' + client.profile?.handle,
+	canChange: (item) => item.cardData.href === 'https://stream.place/' + user.profile?.handle,
 
 	urlHandlerPriority: 5,
 
@@ -97,8 +95,8 @@ export const LivestreamEmbedCardDefitition = {
 		card.mobileH = 4;
 
 		card.cardData = {
-			href: 'https://stream.place/' + client.profile?.handle,
-			embed: 'https://stream.place/embed/' + client.profile?.handle
+			href: 'https://stream.place/' + user.profile?.handle,
+			embed: 'https://stream.place/embed/' + user.profile?.handle
 		};
 	}
 	// canChange: (item) => item.cardData.href === 'https://stream.place/' + client.profile?.handle,

@@ -2,7 +2,7 @@
 // https://googlefonts.github.io/noto-emoji-animation/
 
 import type { CardDefinition } from '../types';
-import { listRecords, putRecord } from '$lib/oauth/atproto';
+import { listRecords, putRecord } from '$lib/atproto';
 import StatusphereCard from './StatusphereCard.svelte';
 import { TID } from '@atproto/common-web';
 import EditStatusphereCard from './EditStatusphereCard.svelte';

@@ -1,4 +1,4 @@
-import { describeRepo } from '$lib/oauth/atproto';
+import { describeRepo } from '$lib/atproto';
 import type { CardDefinition } from '../types';
 import ATProtoCollectionsCard from './ATProtoCollectionsCard.svelte';
 import SidebarItemATProtoCollectionsCard from './SidebarItemATProtoCollectionsCard.svelte';
@@ -7,9 +7,9 @@ export const ATProtoCollectionsCardDefinition = {
 	type: 'atprotocollections',
 	contentComponent: ATProtoCollectionsCard,
 	loadData: async (items, { did }) => {
-		const data = (await describeRepo({ did })).data;
+		const data = await describeRepo({ did });
 		const collections = new Set<string>();
-		for (const collection of data.collections) {
+		for (const collection of data?.collections ?? []) {
 			const split = collection.split('.');
 			if (split.length > 1) collections.add(split[1] + '.' + split[0]);
 		}

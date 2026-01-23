@@ -1,5 +1,4 @@
-import { getRecord, listRecords } from '$lib/oauth/atproto';
-import { parseUri } from '$lib/oauth/utils';
+import { getRecord, listRecords, parseUri } from '$lib/atproto';
 import type { CardDefinition } from '../types';
 import StandardSiteDocumentListCard from './StandardSiteDocumentListCard.svelte';
 

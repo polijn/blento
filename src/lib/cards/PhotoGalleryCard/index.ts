@@ -1,7 +1,6 @@
 import type { CardDefinition } from '../types';
-import { getRecord, listRecords } from '$lib/oauth/atproto';
+import { getRecord, listRecords, parseUri } from '$lib/atproto';
 import PhotoGalleryCard from './PhotoGalleryCard.svelte';
-import { parseUri } from '$lib/oauth/utils';
 import type { Record as ListRecord } from '@atproto/api/dist/client/types/com/atproto/repo/listRecords';
 
 export const PhotoGalleryCardDefinition = {

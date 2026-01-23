@@ -1,4 +1,4 @@
-import { uploadBlob } from '$lib/oauth/utils';
+import { uploadBlob } from '$lib/atproto';
 import type { CardDefinition } from '../types';
 import VideoCard from './VideoCard.svelte';
 import VideoCardSettings from './VideoCardSettings.svelte';

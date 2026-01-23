@@ -1,7 +1,8 @@
-import { getProfile } from '$lib/oauth/atproto';
+import { getDetailedProfile } from '$lib/atproto';
 import type { ProfileViewDetailed } from '@atproto/api/dist/client/types/app/bsky/actor/defs';
 import type { CardDefinition } from '../../types';
 import UpdatedBlentosCard from './UpdatedBlentosCard.svelte';
+import { AppBskyActorDefs } from '@atcute/bluesky';
 
 export const UpdatedBlentosCardDefitition = {
 	type: 'updatedBlentos',
@@ -24,10 +25,10 @@ export const UpdatedBlentosCardDefitition = {
 				if (!existingUsersSet.has(record.did)) uniqueDids.add(record.did);
 			}
 
-			const profiles: Promise<ProfileViewDetailed>[] = [];
+			const profiles: Promise<AppBskyActorDefs.ProfileViewDetailed>[] = [];
 
 			for (const did of Array.from(uniqueDids)) {
-				const profile = getProfile({ did });
+				const profile = getDetailedProfile({ did });
 				profiles.push(profile);
 				if (profiles.length > 20) break;
 			}

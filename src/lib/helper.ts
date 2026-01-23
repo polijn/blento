@@ -1,7 +1,7 @@
 import type { Item, WebsiteData } from './types';
 import { COLUMNS, margin, mobileMargin } from '$lib';
 import { CardDefinitionsByType } from './cards';
-import { deleteRecord, putRecord } from './oauth/atproto';
+import { deleteRecord, putRecord } from '$lib/atproto';
 import { toast } from '@foxui/core';
 import { TID } from '@atproto/common-web';
 

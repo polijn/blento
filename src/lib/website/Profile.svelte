@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { marked } from 'marked';
-	import { client, login } from '../oauth';
+	import { user, login } from '$lib/atproto';
 	import { Button } from '@foxui/core';
 	import { BlueskyLogin } from '@foxui/social';
 	import { env } from '$env/dynamic/public';
@@ -50,7 +50,7 @@
 			</div>
 		</div>
 
-		{#if showEditButton && client.isLoggedIn && client.profile?.did === data.did}
+		{#if showEditButton && user.isLoggedIn && user.profile?.did === data.did}
 			<div>
 				<Button href="{page.url}/edit" class="mt-2">
 					<svg
@@ -74,8 +74,8 @@
 			<div class="h-[42px] w-1 @5xl/wrapper:hidden"></div>
 		{/if}
 
-		{#if !env.PUBLIC_IS_SELFHOSTED && data.handle === 'blento.app' && client.profile?.handle !== data.handle}
-			{#if !client.isInitializing && !client.isLoggedIn}
+		{#if !env.PUBLIC_IS_SELFHOSTED && data.handle === 'blento.app' && user.profile?.handle !== data.handle}
+			{#if !user.isInitializing && !user.isLoggedIn}
 				<div>
 					<div class="my-4 text-sm">
 						To create your own blento, sign in with your bluesky account
@@ -87,9 +87,9 @@
 						}}
 					/>
 				</div>
-			{:else if client.isLoggedIn}
+			{:else if user.isLoggedIn}
 				<div>
-					<Button href="/{env.PUBLIC_IS_SELFHOSTED ? '' : client.profile?.handle}/edit" class="mt-2">
+					<Button href="/{env.PUBLIC_IS_SELFHOSTED ? '' : user.profile?.handle}/edit" class="mt-2">
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
 							fill="none"

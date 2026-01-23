@@ -8,7 +8,7 @@
 		getIsMobile
 	} from '$lib/website/context';
 	import { CardDefinitionsByType } from '..';
-	import { getImageBlobUrl, parseUri } from '$lib/oauth/utils';
+	import { getImageBlobUrl, parseUri } from '$lib/atproto';
 
 	import { ImageMasonry } from '@foxui/visual';
 
@@ -45,7 +45,7 @@
 			.map((i) => {
 				const { did } = parseUri(i.uri);
 				return {
-					src: getImageBlobUrl({ did, link: i.value.photo?.ref?.$link }),
+					src: getImageBlobUrl({ did, blob: i.value.photo }),
 					width: i.value.aspectRatio.width,
 					height: i.value.aspectRatio.height,
 					position: i.value.position ?? 0

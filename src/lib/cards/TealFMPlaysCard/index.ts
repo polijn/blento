@@ -1,5 +1,5 @@
 import type { CardDefinition } from '../types';
-import { listRecords } from '$lib/oauth/atproto';
+import { listRecords } from '$lib/atproto';
 import TealFMPlaysCard from './TealFMPlaysCard.svelte';
 
 export const TealFMPlaysCardDefinition = {

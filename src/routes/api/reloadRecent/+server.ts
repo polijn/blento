@@ -1,4 +1,4 @@
-import { getProfile } from '$lib/oauth/atproto';
+import { getDetailedProfile } from '$lib/atproto';
 import type { ProfileViewDetailed } from '@atproto/api/dist/client/types/app/bsky/actor/defs';
 import { json } from '@sveltejs/kit';
 
@@ -12,7 +12,7 @@ export async function GET({ platform }) {
 
 	const newProfilesPromises: Promise<ProfileViewDetailed>[] = [];
 	for (const did of Array.from(existingUsersSet)) {
-		const profile = getProfile({ did });
+		const profile = getDetailedProfile({ did });
 		newProfilesPromises.push(profile);
 		if (newProfilesPromises.length > 20) break;
 	}

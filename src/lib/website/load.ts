@@ -1,9 +1,8 @@
-import { getProfile, listRecords, resolveHandle } from '$lib/oauth/atproto';
+import { getDetailedProfile, listRecords, resolveHandle, parseUri } from '$lib/atproto';
 import type { Record as ListRecord } from '@atproto/api/dist/client/types/com/atproto/repo/listRecords';
 import { CardDefinitionsByType } from '$lib/cards';
 import type { Item, UserCache, WebsiteData } from '$lib/types';
 import { compactItems, fixAllCollisions } from '$lib/helper';
-import { parseUri } from '$lib/oauth/utils';
 import { error } from '@sveltejs/kit';
 
 const CURRENT_CACHE_VERSION = 1;
@@ -75,7 +74,7 @@ export async function loadData(
 		}
 	);
 
-	const profile = await getProfile({ did });
+	const profile = await getDetailedProfile({ did });
 
 	const cardTypes = new Set(cards.map((v) => v.value.cardType ?? '') as string[]);
 	const cardTypesArray = Array.from(cardTypes);

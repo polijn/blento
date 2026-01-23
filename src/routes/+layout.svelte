@@ -3,7 +3,7 @@
 
 	import { ThemeToggle } from '@foxui/core';
 	import { onMount } from 'svelte';
-	import { initClient } from '$lib/oauth';
+	import { initClient } from '$lib/atproto';
 	import YoutubeVideoPlayer, { videoPlayer } from '$lib/cards/utils/YoutubeVideoPlayer.svelte';
 
 	let { children } = $props();

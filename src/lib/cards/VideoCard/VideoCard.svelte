@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getDidContext } from '$lib/website/context';
-	import { getBlob } from '$lib/oauth/atproto';
+	import { getBlobURL } from '$lib/atproto';
 	import { onMount } from 'svelte';
 	import type { ContentComponentProps } from '../types';
 
@@ -27,11 +27,8 @@
 
 		// Fetch the video blob from the PDS
 		if (item.cardData.video?.video && typeof item.cardData.video.video === 'object') {
-			const cid = item.cardData.video.video?.ref?.$link;
-			if (!cid) return;
-
 			try {
-				const blobUrl = await getBlob({ did, cid });
+				const blobUrl = await getBlobURL({ did, blob: item.cardData.video.video });
 				const res = await fetch(blobUrl);
 				if (!res.ok) throw new Error(res.statusText);
 				const blob = await res.blob();

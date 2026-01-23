@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getDidContext } from '$lib/website/context';
-	import { getImageBlobUrl } from '$lib/oauth/utils';
+	import { getImageBlobUrl } from '$lib/atproto';
 	import type { ContentComponentProps } from '../types';
 
 	let { item = $bindable(), ...rest }: ContentComponentProps = $props();
@@ -11,7 +11,7 @@
 		if (item.cardData.objectUrl) return item.cardData.objectUrl;
 
 		if (item.cardData.image && typeof item.cardData.image === 'object') {
-			return getImageBlobUrl({ did, link: item.cardData.image?.ref?.$link });
+			return getImageBlobUrl({ did, blob: item.cardData.image });
 		}
 		return item.cardData.image;
 	}
