@@ -1,11 +1,8 @@
 <script lang="ts">
-	import { getDidContext } from '$lib/website/context';
 	import type { ContentComponentProps } from '../types';
 	import Video from './Video.svelte';
 
 	let { item = $bindable() }: ContentComponentProps = $props();
-
-	const did = getDidContext();
 </script>
 
 {#if item.cardData.image}

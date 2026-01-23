@@ -30,7 +30,7 @@
 </script>
 
 <div class="z-10 flex h-full gap-4 overflow-x-scroll p-4">
-	{#each feed ?? [] as review}
+	{#each feed ?? [] as review (review.uri)}
 		{#if review.value.rating !== undefined && review.value.posterUrl}
 			<a
 				rel="noopener noreferrer"

@@ -31,7 +31,7 @@
 	{@render imageSnippet(data.images[0])}
 {:else}
 	<div class="columns-2 gap-4">
-		{#each data.images as image}
+		{#each data.images as image (image.thumb)}
 			{@render imageSnippet(image, 'mb-4')}
 		{/each}
 	</div>

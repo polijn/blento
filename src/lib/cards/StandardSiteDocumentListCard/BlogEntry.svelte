@@ -10,7 +10,7 @@
 </script>
 
 <article class="group/article relative isolate flex flex-col">
-	<div class={'text-base-500 accent:text-accent-950 flex shrink-0 items-center gap-x-4 text-xs'}>
+	<div class="text-base-500 accent:text-accent-950 flex shrink-0 items-center gap-x-4 text-xs">
 		<DateTime date={new Date(date)} />
 	</div>
 	<div class="max-w-xl">

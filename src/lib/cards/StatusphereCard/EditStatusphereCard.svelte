@@ -4,8 +4,6 @@
 	import { getAdditionalUserData, getDidContext, getHandleContext } from '$lib/website/context';
 	import { CardDefinitionsByType } from '..';
 	import { PopoverEmojiPicker } from '@foxui/social';
-
-	import icons from './icons.json';
 	import { emojiToNotoAnimatedWebp } from '.';
 	import PlainTextEditor from '../utils/PlainTextEditor.svelte';
 	import { cn } from '@foxui/core';

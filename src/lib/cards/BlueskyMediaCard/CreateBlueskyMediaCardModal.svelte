@@ -59,7 +59,7 @@
 	<div
 		class="bg-base-100 dark:bg-base-950 grid h-[50dvh] grid-cols-2 gap-4 overflow-y-scroll rounded-2xl p-4 lg:grid-cols-3"
 	>
-		{#each mediaList as media}
+		{#each mediaList as media (media.thumbnail || media.playlist)}
 			<button
 				onclick={() => {
 					console.log(media);

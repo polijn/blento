@@ -40,7 +40,7 @@
 		{/if}
 	</div>
 	<div class="flex w-full flex-wrap gap-2 overflow-x-hidden overflow-y-scroll px-4">
-		{#each collections ?? [] as collection}
+		{#each collections ?? [] as collection (collection)}
 			<Button target="_blank" href={getLink(collection)} size="sm">{collection}</Button>
 		{/each}
 	</div>

@@ -19,6 +19,7 @@
 	}
 
 	interface Play {
+		uri: string;
 		value: PlayValue;
 	}
 
@@ -84,7 +85,7 @@
 {/snippet}
 
 <div class="z-10 flex h-full w-full flex-col gap-4 overflow-y-scroll p-4">
-	{#each feed ?? [] as play}
+	{#each feed ?? [] as play (play.uri)}
 		{#if play.value.originUrl}
 			<a href={play.value.originUrl} target="_blank" rel="noopener noreferrer" class="w-full">
 				{@render musicItem(play)}

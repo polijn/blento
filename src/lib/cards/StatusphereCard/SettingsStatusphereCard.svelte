@@ -2,7 +2,6 @@
 	import type { Item } from '$lib/types';
 	import { getAdditionalUserData } from '$lib/website/context';
 	import { EmojiPicker } from '@foxui/social';
-	import { emojiToNotoAnimatedWebp } from '.';
 
 	let { item }: { item: Item } = $props();
 

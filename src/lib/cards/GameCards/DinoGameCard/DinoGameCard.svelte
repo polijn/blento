@@ -1,5 +1,4 @@
 <script lang="ts">
-	import type { ContentComponentProps } from '../../types';
 	import { onMount, onDestroy } from 'svelte';
 
 	let canvas: HTMLCanvasElement;

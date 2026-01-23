@@ -177,11 +177,7 @@
 
 		// Get dragged card's original position
 		const draggedOrigPos = activeDragElement.originalPositions.get(activeDragElement.item.id);
-		const draggedOrigX = draggedOrigPos
-			? isMobile
-				? draggedOrigPos.mobileX
-				: draggedOrigPos.x
-			: 0;
+
 		const draggedOrigY = draggedOrigPos
 			? isMobile
 				? draggedOrigPos.mobileY
@@ -735,7 +731,7 @@
 
 	<Sidebar mobileOnly mobileClasses="lg:block p-4 gap-4">
 		<div class="flex flex-col gap-2">
-			{#each sidebarItems as cardDef}
+			{#each sidebarItems as cardDef (cardDef.type)}
 				{#if cardDef.sidebarComponent}
 					<cardDef.sidebarComponent onclick={() => newCard(cardDef.type)} />
 				{:else if cardDef.sidebarButtonText}

@@ -15,14 +15,11 @@
 	let handle = getHandleContext();
 
 	onMount(async () => {
-		console.log(feed);
 		if (!feed) {
 			feed = (await CardDefinitionsByType[item.cardType]?.loadData?.([item], {
 				did,
 				handle
 			})) as any;
-
-			console.log(feed);
 
 			data[item.cardType] = feed;
 		}
@@ -30,7 +27,7 @@
 </script>
 
 <div class="flex h-full flex-col gap-10 overflow-y-scroll p-8">
-	{#each feed ?? [] as document}
+	{#each feed ?? [] as document (document.uri)}
 		<BlogEntry
 			title={document.value.title}
 			description={document.value.description}

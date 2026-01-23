@@ -16,7 +16,7 @@
 
 	onMount(async () => {
 		try {
-			// @ts-ignore
+			// @ts-expect-error this is fine
 			leaflet = await import('leaflet');
 
 			const location = [parseFloat(item.cardData.lat), parseFloat(item.cardData.lon)];

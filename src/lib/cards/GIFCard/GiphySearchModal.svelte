@@ -140,9 +140,9 @@
 			</div>
 		{:else if displayResults.length > 0}
 			<div class="flex items-start gap-3">
-				{#each columns() as column}
+				{#each columns() as column, i (i)}
 					<div class="flex w-1/4 flex-col gap-3">
-						{#each column as gif}
+						{#each column as gif (gif.id)}
 							<button
 								onclick={() => selectGif(gif)}
 								aria-label={gif.title}
@@ -164,7 +164,7 @@
 				{/each}
 			</div>
 		{:else if searchQuery}
-			<div class="flex h-[300px] items-center justify-center">
+			<div class="flex h-75 items-center justify-center">
 				<p class="text-base-500">No results found</p>
 			</div>
 		{/if}
