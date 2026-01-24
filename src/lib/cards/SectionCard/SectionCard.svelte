@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { marked } from 'marked';
 	import type { ContentComponentProps } from '../types';
+	import { textAlignClasses, textSizeClasses, verticalAlignClasses } from '.';
 
 	let { item }: ContentComponentProps = $props();
 
@@ -10,7 +11,12 @@
 </script>
 
 <div
-	class="line-clamp-1 inline-flex h-full w-full items-center rounded-md p-1 px-2 text-2xl font-semibold"
+	class={[
+		'line-clamp-1 inline-flex h-full w-full rounded-md p-1 px-2 font-semibold',
+		textAlignClasses[item.cardData.textAlign as string],
+		verticalAlignClasses[item.cardData.verticalAlign ?? ('center' as string)],
+		textSizeClasses[(item.cardData.textSize ?? 1) as number]
+	]}
 >
 	{item.cardData.text}
 </div>
