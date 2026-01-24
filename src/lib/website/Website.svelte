@@ -9,6 +9,7 @@
 	import Context from './Context.svelte';
 	import Head from './Head.svelte';
 	import type { Did, Handle } from '@atcute/lexicons';
+	import QRModalProvider from '$lib/components/qr/QRModalProvider.svelte';
 
 	let { data }: { data: WebsiteData } = $props();
 
@@ -38,6 +39,7 @@
 />
 
 <Context {data}>
+	<QRModalProvider />
 	<div class="@container/wrapper relative w-full">
 		{#if !getHideProfileSection(data)}
 			<Profile {data} showEditButton={true} />
