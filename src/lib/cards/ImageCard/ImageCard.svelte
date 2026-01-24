@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { getDidContext } from '$lib/website/context';
 	import type { ContentComponentProps } from '../types';
+	import { qrOverlay } from '$lib/components/qr/qrOverlay.svelte';
 	import { getImage } from '$lib/helper';
 
 	let { item = $bindable(), isEditing }: ContentComponentProps = $props();
@@ -24,6 +25,7 @@
 		class="absolute inset-0 z-50 h-full w-full"
 		target="_blank"
 		rel="noopener noreferrer"
+		use:qrOverlay={{ context: { title: item.cardData.hrefText ?? 'Learn more' } }}
 	>
 		<span class="sr-only">
 			{item.cardData.hrefText ?? 'Learn more'}

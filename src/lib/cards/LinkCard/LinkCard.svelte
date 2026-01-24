@@ -3,8 +3,9 @@
 	import { getImage } from '$lib/helper';
 	import { getDidContext, getIsMobile } from '$lib/website/context';
 	import type { ContentComponentProps } from '../types';
+	import { qrOverlay } from '$lib/components/qr/qrOverlay.svelte';
 
-	let { item }: ContentComponentProps = $props();
+	let { item, isEditing }: ContentComponentProps = $props();
 
 	let isMobile = getIsMobile();
 
@@ -65,12 +66,18 @@
 			alt=""
 		/>
 	{/if}
-	{#if item.cardData.href}
+	{#if item.cardData.href && !isEditing}
 		<a
 			href={item.cardData.href}
 			class="absolute inset-0 h-full w-full"
 			target="_blank"
 			rel="noopener noreferrer"
+			use:qrOverlay={{
+				context: {
+					title: item.cardData.title,
+					favicon: item.cardData.favicon
+				}
+			}}
 		>
 			<span class="sr-only">
 				{item.cardData.hrefText ?? 'Learn more'}

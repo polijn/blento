@@ -7,8 +7,11 @@
 	import GithubContributionsGraph from './GithubContributionsGraph.svelte';
 	import { Button } from '@foxui/core';
 	import { browser } from '$app/environment';
+	import { qrOverlay } from '$lib/components/qr/qrOverlay.svelte';
 
-	let { item }: ContentComponentProps = $props();
+	let { item, isEditing }: ContentComponentProps = $props();
+
+	const githubUrl = $derived(`https://github.com/${item.cardData.user}`);
 
 	const data = getAdditionalUserData();
 
@@ -75,13 +78,20 @@
 	</div>
 </div>
 
-{#if item.cardData.href}
+{#if (item.cardData.href || item.cardData.user) && !isEditing}
 	<a
-		href={item.cardData.href}
+		href={item.cardData.href || githubUrl}
 		class="absolute inset-0 h-full w-full"
 		target="_blank"
 		rel="noopener noreferrer"
+		use:qrOverlay={{
+			context: {
+				title: item.cardData.user,
+				icon: siGithub.svg,
+				iconColor: siGithub.hex
+			}
+		}}
 	>
-		<span class="sr-only"> Show on github </span>
+		<span class="sr-only">Show on github</span>
 	</a>
 {/if}
