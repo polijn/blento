@@ -7,7 +7,6 @@ import {
 	deleteStoredSession
 } from '@atcute/oauth-browser-client';
 import { AppBskyActorDefs } from '@atcute/bluesky';
-import type { ActorIdentifier, Did } from '@atcute/lexicons';
 import {
 	CompositeDidDocumentResolver,
 	CompositeHandleResolver,
@@ -18,6 +17,7 @@ import {
 	WellKnownHandleResolver
 } from '@atcute/identity-resolver';
 import { Client } from '@atcute/client';
+import type { ActorIdentifier, Did } from '@atcute/lexicons';
 
 import { dev } from '$app/environment';
 import { replaceState } from '$app/navigation';
@@ -25,6 +25,7 @@ import { replaceState } from '$app/navigation';
 import { metadata } from './metadata';
 import { getDetailedProfile } from './methods';
 import { signUpPDS } from './settings';
+import { SvelteURLSearchParams } from 'svelte/reactivity';
 
 export const user = $state({
 	agent: null as OAuthUserAgent | null,
@@ -67,7 +68,7 @@ export async function initClient() {
 		})
 	});
 
-	const params = new URLSearchParams(location.hash.slice(1));
+	const params = new SvelteURLSearchParams(location.hash.slice(1));
 
 	const did = (localStorage.getItem('current-login') as Did) ?? undefined;
 

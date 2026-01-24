@@ -7,7 +7,7 @@ import { fileURLToPath } from 'node:url';
 import ts from 'typescript-eslint';
 const gitignorePath = fileURLToPath(new URL('./.gitignore', import.meta.url));
 
-export default ts.config(
+export default [
 	includeIgnoreFile(gitignorePath),
 	js.configs.recommended,
 	...ts.configs.recommended,
@@ -30,5 +30,32 @@ export default ts.config(
 				parser: ts.parser
 			}
 		}
+	},
+	{
+		files: ['**/*.svelte.ts'],
+
+		languageOptions: {
+			parser: ts.parser
+		}
+	},
+	{
+		rules: {
+			'svelte/no-navigation-without-resolve': 'off',
+			'svelte/no-at-html-tags': 'off',
+			'@typescript-eslint/no-explicit-any': 'off',
+			'no-unused-vars': 'off',
+			'@typescript-eslint/no-unused-vars': [
+				'warn',
+				{
+					vars: 'all',
+					varsIgnorePattern: '.*',
+					args: 'none',
+					caughtErrors: 'none',
+					enableAutofixRemoval: {
+						imports: true
+					}
+				}
+			]
+		}
 	}
-);
+];

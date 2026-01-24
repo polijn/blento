@@ -227,6 +227,7 @@
 		}
 	}
 
+	type OscillatorType = 'sine' | 'square' | 'sawtooth' | 'triangle';
 	function playTone(
 		frequency: number,
 		duration: number,
@@ -1003,8 +1004,8 @@
 	});
 </script>
 
-<!-- svelte-ignore a11y_no_noninteractive_tabindex a11y_no_noninteractive_element_interactions -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 <div
 	bind:this={container}
 	class="relative h-full w-full overflow-hidden outline-none"

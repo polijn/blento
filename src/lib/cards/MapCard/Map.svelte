@@ -8,7 +8,7 @@
 
 	let { item = $bindable() }: { item: Item } = $props();
 
-	$inspect(item);
+	// $inspect(item);
 
 	let mapContainer: HTMLElement | undefined = $state();
 	let map: mapboxgl.Map | undefined = $state();

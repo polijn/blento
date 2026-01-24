@@ -229,7 +229,7 @@
 
 						<div class="flex min-w-36 flex-col gap-1">
 							<Label class="mb-2">Card type</Label>
-							{#each changeOptions as changeDef}
+							{#each changeOptions as changeDef, i (i)}
 								<Button
 									class="justify-start"
 									variant={changeDef.type === item.cardType ? 'primary' : 'ghost'}
@@ -405,8 +405,6 @@
 
 			{#if cardDef.canResize !== false}
 				<!-- Resize handle at bottom right corner -->
-				<!-- svelte-ignore a11y_no_static_element_interactions -->
-
 				<div
 					onpointerdown={handleResizeStart}
 					class="bg-base-300/70 dark:bg-base-900/70 pointer-events-auto absolute right-0.5 bottom-0.5 hidden cursor-se-resize rounded-md rounded-br-3xl p-1 group-hover/card:block"
