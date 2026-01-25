@@ -51,6 +51,7 @@ export async function loadData(
 	page: string = 'self'
 ): Promise<WebsiteData> {
 	if (!handle) throw error(404);
+	if (handle === 'favicon.ico') throw error(404);
 
 	if (!forceUpdate) {
 		const cachedResult = await getCache(handle, page, cache);
@@ -58,9 +59,6 @@ export async function loadData(
 		if (cachedResult) return cachedResult;
 	}
 
-	if (handle === 'favicon.ico') throw error(404);
-
-	console.log('resolving', handle);
 	const did = await resolveHandle({ handle });
 
 	const cards = await listRecords({ did, collection: 'app.blento.card' }).catch(() => {
@@ -74,7 +72,7 @@ export async function loadData(
 		rkey: 'blento.self'
 	}).catch(() => {
 		console.error('error getting record for collection site.standard.publication');
-		return [] as Awaited<ReturnType<typeof listRecords>>;
+		return undefined;
 	});
 
 	const pages = await listRecords({ did, collection: 'app.blento.page' }).catch(() => {
@@ -124,7 +122,7 @@ export async function loadData(
 		cards: (cards.map((v) => {
 			return { ...v.value };
 		}) ?? []) as Item[],
-		publications: [mainPublication, ...pages],
+		publications: [mainPublication, ...pages].filter((v) => v),
 		additionalData,
 		profile,
 		updatedAt: Date.now(),
@@ -135,6 +133,7 @@ export async function loadData(
 	await cache?.put?.(handle, stringifiedResult);
 
 	const parsedResult = JSON.parse(stringifiedResult);
+
 	parsedResult.publication = (
 		parsedResult.publications as Awaited<ReturnType<typeof listRecords>>
 	).find((v) => parseUri(v.uri).rkey === parsedResult.page)?.value;

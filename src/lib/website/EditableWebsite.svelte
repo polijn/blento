@@ -497,7 +497,7 @@
 		target.value = '';
 	}
 
-	$inspect(items);
+	// $inspect(items);
 </script>
 
 <svelte:body
@@ -535,20 +535,6 @@
 		</div>
 	{/if}
 
-	{#if getHideProfileSection(data)}
-		<Button
-			size="sm"
-			variant="ghost"
-			onclick={() => {
-				data.publication.preferences ??= {};
-				data.publication.preferences.hideProfileSection = false;
-				data = { ...data };
-			}}
-			class="absolute top-14 left-4 z-20"
-		>
-			show profile
-		</Button>
-	{/if}
 	{#if showingMobileView}
 		<div
 			class="bg-base-200 dark:bg-base-950 pointer-events-none fixed inset-0 -z-10 h-full w-full"
@@ -581,13 +567,27 @@
 
 		<div
 			class={[
-				'mx-auto max-w-lg',
+				'pointer-events-none relative mx-auto max-w-lg',
 				!getHideProfileSection(data) && getProfilePosition(data) === 'side'
 					? '@5xl/wrapper:grid @5xl/wrapper:max-w-7xl @5xl/wrapper:grid-cols-4'
 					: '@5xl/wrapper:max-w-4xl'
 			]}
 		>
-			<div></div>
+			{#if getHideProfileSection(data)}
+				<Button
+					size="sm"
+					variant="ghost"
+					onclick={() => {
+						data.publication.preferences ??= {};
+						data.publication.preferences.hideProfileSection = false;
+						data = { ...data };
+					}}
+					class="pointer-events-auto absolute top-2 left-4 z-20"
+				>
+					show profile
+				</Button>
+			{/if}
+			<div class="pointer-events-none"></div>
 			<!-- svelte-ignore a11y_no_static_element_interactions -->
 			<div
 				bind:this={container}
@@ -689,7 +689,7 @@
 					return true;
 				}}
 				class={[
-					'@container/grid relative col-span-3 rounded-4xl px-2 py-8 @5xl/wrapper:px-8',
+					'@container/grid pointer-events-auto relative col-span-3 rounded-4xl px-2 py-8 @5xl/wrapper:px-8',
 					imageDragOver && 'outline-accent-500 outline-3 -outline-offset-10 outline-dashed'
 				]}
 			>

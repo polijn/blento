@@ -14,7 +14,7 @@
 </script>
 
 {#if user.isLoggedIn && user.profile}
-	<div class="fixed bottom-4 right-4 z-20">
+	<div class="fixed right-4 bottom-4 z-20">
 		<Popover sideOffset={8} bind:open={settingsPopoverOpen} class="bg-base-100 dark:bg-base-900">
 			{#snippet child({ props })}
 				<button {...props}>

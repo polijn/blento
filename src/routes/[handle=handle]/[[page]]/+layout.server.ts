@@ -9,7 +9,5 @@ export async function load({ params, platform }) {
 
 	const cache = platform?.env?.USER_DATA_CACHE as unknown;
 
-	console.log(params.page);
-
 	return await loadData(params.handle as Handle, cache as UserCache, false, params.page);
 }

@@ -62,14 +62,7 @@
 			: '@5xl/wrapper:max-w-4xl @5xl/wrapper:px-12'
 	]}
 >
-	<div class={['absolute left-2 flex gap-2', profilePosition === 'side' ? 'top-12' : 'top-4']}>
-		<!-- Position toggle button (desktop only) -->
-		{#if !isMobile()}
-			<Button size="sm" type="button" onclick={toggleProfilePosition} variant="ghost">
-				{profilePosition === 'side' ? 'Move to top' : 'Move to side'}
-			</Button>
-		{/if}
-
+	<div class={['absolute left-2 z-20 flex gap-2', profilePosition === 'side' ? 'top-12' : 'top-4']}>
 		<Button
 			size="sm"
 			onclick={() => {
@@ -81,6 +74,13 @@
 		>
 			hide profile
 		</Button>
+
+		<!-- Position toggle button (desktop only) -->
+		{#if !isMobile()}
+			<Button size="sm" type="button" onclick={toggleProfilePosition} variant="ghost">
+				{profilePosition === 'side' ? 'Move to top' : 'Move to side'}
+			</Button>
+		{/if}
 	</div>
 
 	<div
@@ -171,6 +171,6 @@
 
 		<div class={['h-10.5 w-1', profilePosition === 'side' && '@5xl/wrapper:hidden']}></div>
 
-		<MadeWithBlento class="hidden @5xl/wrapper:block {profilePosition === 'side' && '@5xl/wrapper:block'}" />
+		<MadeWithBlento class="hidden {profilePosition === 'side' && '@5xl/wrapper:block'}" />
 	</div>
 </div>
