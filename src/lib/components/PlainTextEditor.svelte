@@ -15,19 +15,25 @@
 		key,
 		class: className,
 		placeholder = '',
-		defaultContent = ''
+		defaultContent = '',
+		onupdate
 	}: {
 		contentDict: Record<string, any>;
 		key: string;
 		class?: string;
 		placeholder?: string;
 		defaultContent?: string;
+		onupdate?: (content: string) => void;
 	} = $props();
 
 	const update = async () => {
 		if (!editor) return;
 
-		contentDict[key] = editor.getText();
+		const text = editor.getText();
+
+		contentDict[key] = text;
+
+		onupdate?.(text);
 	};
 
 	onMount(async () => {

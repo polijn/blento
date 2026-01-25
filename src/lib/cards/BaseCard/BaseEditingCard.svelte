@@ -182,7 +182,7 @@
 	{#if cardDef.canHaveLabel}
 		<div
 			class={cn(
-				'bg-base-200/30 dark:bg-base-900/30 absolute top-2 left-2 z-100 w-fit max-w-[calc(100%-1rem)] rounded-xl p-1 px-2 backdrop-blur-md',
+				'bg-base-200/50 dark:bg-base-900/50 absolute top-2 left-2 z-100 w-fit max-w-[calc(100%-1rem)] rounded-xl p-1 px-2 backdrop-blur-md',
 				!item.cardData.label && 'hidden group-hover/card:block'
 			)}
 		>

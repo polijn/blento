@@ -1,4 +1,4 @@
-import { getDetailedProfile, listRecords, resolveHandle, parseUri } from '$lib/atproto';
+import { getDetailedProfile, listRecords, resolveHandle, parseUri, getRecord } from '$lib/atproto';
 import { CardDefinitionsByType } from '$lib/cards';
 import type { Item, UserCache, WebsiteData } from '$lib/types';
 import { compactItems, fixAllCollisions } from '$lib/helper';
@@ -33,6 +33,7 @@ export async function getCache(handle: string, page: string, cache?: UserCache) 
 		result.publication = (result.publications as Awaited<ReturnType<typeof listRecords>>).find(
 			(v) => parseUri(v.uri).rkey === result.page
 		)?.value;
+		result.publication ??= {};
 
 		delete result['publications'];
 
@@ -67,12 +68,19 @@ export async function loadData(
 		return [] as Awaited<ReturnType<typeof listRecords>>;
 	});
 
-	const publications = await listRecords({ did, collection: 'site.standard.publication' }).catch(
-		() => {
-			console.error('error getting records for collection site.standard.publication');
-			return [] as Awaited<ReturnType<typeof listRecords>>;
-		}
-	);
+	const mainPublication = await getRecord({
+		did,
+		collection: 'site.standard.publication',
+		rkey: 'blento.self'
+	}).catch(() => {
+		console.error('error getting record for collection site.standard.publication');
+		return [] as Awaited<ReturnType<typeof listRecords>>;
+	});
+
+	const pages = await listRecords({ did, collection: 'app.blento.page' }).catch(() => {
+		console.error('error getting records for collection app.blento.page');
+		return [] as Awaited<ReturnType<typeof listRecords>>;
+	});
 
 	const profile = await getDetailedProfile({ did });
 
@@ -116,7 +124,7 @@ export async function loadData(
 		cards: (cards.map((v) => {
 			return { ...v.value };
 		}) ?? []) as Item[],
-		publications: publications,
+		publications: [mainPublication, ...pages],
 		additionalData,
 		profile,
 		updatedAt: Date.now(),
@@ -130,6 +138,7 @@ export async function loadData(
 	parsedResult.publication = (
 		parsedResult.publications as Awaited<ReturnType<typeof listRecords>>
 	).find((v) => parseUri(v.uri).rkey === parsedResult.page)?.value;
+	parsedResult.publication ??= {};
 
 	delete parsedResult['publications'];
 

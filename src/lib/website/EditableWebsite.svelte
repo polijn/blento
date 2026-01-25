@@ -8,6 +8,7 @@
 		createEmptyCard,
 		fixCollisions,
 		getHideProfileSection,
+		getProfilePosition,
 		getName,
 		isTyping,
 		savePage,
@@ -26,7 +27,6 @@
 	import { setIsMobile } from './context';
 	import BaseEditingCard from '../cards/BaseCard/BaseEditingCard.svelte';
 	import Context from './Context.svelte';
-	import Settings from './Settings.svelte';
 	import Head from './Head.svelte';
 	import { compressImage } from '../helper';
 	import Account from './Account.svelte';
@@ -150,8 +150,6 @@
 	}
 
 	const sidebarItems = AllCardDefinitions.filter((cardDef) => cardDef.sidebarButtonText);
-
-	let showSettings = $state(false);
 
 	let debugPoint = $state({ x: 0, y: 0 });
 
@@ -526,8 +524,6 @@
 	image={'/' + data.handle + '/og.png'}
 />
 
-<Settings bind:open={showSettings} bind:data />
-
 <Account {data} />
 
 <Context {data}>
@@ -539,6 +535,20 @@
 		</div>
 	{/if}
 
+	{#if getHideProfileSection(data)}
+		<Button
+			size="sm"
+			variant="ghost"
+			onclick={() => {
+				data.publication.preferences ??= {};
+				data.publication.preferences.hideProfileSection = false;
+				data = { ...data };
+			}}
+			class="absolute top-14 left-4 z-20"
+		>
+			show profile
+		</Button>
+	{/if}
 	{#if showingMobileView}
 		<div
 			class="bg-base-200 dark:bg-base-950 pointer-events-none fixed inset-0 -z-10 h-full w-full"
@@ -561,7 +571,7 @@
 		class={[
 			'@container/wrapper relative w-full',
 			showingMobileView
-				? 'bg-base-50 dark:bg-base-900 my-4 min-h-[calc(100dhv-2em)] rounded-2xl lg:mx-auto lg:w-[375px]'
+				? 'bg-base-50 dark:bg-base-900 my-4 min-h-[calc(100dhv-2em)] rounded-2xl lg:mx-auto lg:w-90'
 				: ''
 		]}
 	>
@@ -572,7 +582,7 @@
 		<div
 			class={[
 				'mx-auto max-w-lg',
-				!getHideProfileSection(data)
+				!getHideProfileSection(data) && getProfilePosition(data) === 'side'
 					? '@5xl/wrapper:grid @5xl/wrapper:max-w-7xl @5xl/wrapper:grid-cols-4'
 					: '@5xl/wrapper:max-w-4xl'
 			]}
@@ -751,7 +761,6 @@
 			bind:linkValue
 			bind:isSaving
 			bind:showingMobileView
-			bind:showSettings
 			{newCard}
 			{addLink}
 			{save}

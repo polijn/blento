@@ -19,14 +19,16 @@
 		key = 'text',
 		placeholder = '',
 		defaultContent = '',
-		class: className
+		class: className,
+		onupdate
 	}: {
-		editor: Editor | null;
+		editor?: Editor | null;
 		contentDict: Record<string, any>;
 		key: string;
 		placeholder?: string;
 		defaultContent?: string;
 		class?: string;
+		onupdate?: (content: string) => void;
 	} = $props();
 
 	const update = async () => {
@@ -41,6 +43,8 @@
 		const markdown = turndownService.turndown(html);
 
 		contentDict[key] = markdown;
+
+		onupdate?.(markdown);
 	};
 
 	onMount(async () => {

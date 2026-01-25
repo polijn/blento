@@ -33,25 +33,26 @@ export type WebsiteData = {
 	handle: string;
 
 	cards: Item[];
-	publication:
-		| {
-				url?: string;
-				name?: string;
-				description?: string;
-				icon?: Blob;
-				preferences?: {
-					/**
-					 * @deprecated
-					 *
-					 * use hideProfileSection instead
-					 */
-					hideProfile?: boolean;
+	publication: {
+		url?: string;
+		name?: string;
+		description?: string;
+		icon?: Blob;
+		preferences?: {
+			/**
+			 * @deprecated
+			 *
+			 * use hideProfileSection instead
+			 */
+			hideProfile?: boolean;
 
-					// use this instead
-					hideProfileSection?: boolean;
-				};
-		  }
-		| undefined;
+			// use this instead
+			hideProfileSection?: boolean;
+
+			// 'side' (default on desktop) or 'top' (always top like mobile view)
+			profilePosition?: 'side' | 'top';
+		};
+	};
 	profile: AppBskyActorDefs.ProfileViewDetailed;
 
 	additionalData: Record<string, unknown>;

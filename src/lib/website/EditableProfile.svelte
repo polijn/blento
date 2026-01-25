@@ -1,33 +1,25 @@
 <script lang="ts">
 	import type { WebsiteData } from '$lib/types';
-	import { getDescription, getName, getImage, compressImage } from '$lib/helper';
+	import { getImage, compressImage, getProfilePosition } from '$lib/helper';
 	import PlainTextEditor from '$lib/components/PlainTextEditor.svelte';
 	import MarkdownTextEditor from '$lib/components/MarkdownTextEditor.svelte';
+	import { Button } from '@foxui/core';
+	import { getIsMobile } from './context';
 	import type { Editor } from '@tiptap/core';
 	import MadeWithBlento from './MadeWithBlento.svelte';
 
 	let { data = $bindable() }: { data: WebsiteData } = $props();
 
+	let profilePosition = $derived(getProfilePosition(data));
+
+	function toggleProfilePosition() {
+		data.publication.preferences ??= {};
+		data.publication.preferences.profilePosition = profilePosition === 'side' ? 'top' : 'side';
+		data = { ...data };
+	}
+
 	let fileInput: HTMLInputElement;
 	let isHoveringAvatar = $state(false);
-	let descriptionEditor: Editor | null = $state(null);
-
-	// Initialize publication if needed
-	$effect(() => {
-		if (!data.publication) {
-			data.publication = {
-				name: getName(data),
-				description: getDescription(data)
-			};
-		} else {
-			if (data.publication.name === undefined) {
-				data.publication.name = getName(data);
-			}
-			if (data.publication.description === undefined) {
-				data.publication.description = getDescription(data);
-			}
-		}
-	});
 
 	async function handleAvatarChange(event: Event) {
 		const target = event.target as HTMLInputElement;
@@ -38,7 +30,6 @@
 			const compressedBlob = await compressImage(file);
 			const objectUrl = URL.createObjectURL(compressedBlob);
 
-			data.publication ??= {};
 			data.publication.icon = {
 				blob: compressedBlob,
 				objectUrl
@@ -51,7 +42,7 @@
 	}
 
 	function getAvatarUrl(): string | undefined {
-		const customIcon = getImage(data.publication ?? {}, data.did, 'icon');
+		const customIcon = getImage(data.publication, data.did, 'icon');
 		if (customIcon) return customIcon;
 		return data.profile.avatar;
 	}
@@ -59,16 +50,52 @@
 	function handleFileInputClick() {
 		fileInput.click();
 	}
+
+	let isMobile = getIsMobile();
 </script>
 
 <div
-	class="mx-auto flex max-w-lg flex-col justify-between px-8 @5xl/wrapper:fixed @5xl/wrapper:h-screen @5xl/wrapper:w-1/4 @5xl/wrapper:max-w-none @5xl/wrapper:px-12"
+	class={[
+		'relative mx-auto flex max-w-lg flex-col justify-between px-8',
+		profilePosition === 'side'
+			? '@5xl/wrapper:fixed @5xl/wrapper:h-screen @5xl/wrapper:w-1/4 @5xl/wrapper:max-w-none @5xl/wrapper:px-12'
+			: '@5xl/wrapper:max-w-4xl @5xl/wrapper:px-12'
+	]}
 >
-	<div class="flex flex-col gap-4 pt-16 pb-8 @5xl/wrapper:h-screen @5xl/wrapper:pt-24">
+	<div class={['absolute left-2 flex gap-2', profilePosition === 'side' ? 'top-12' : 'top-4']}>
+		<!-- Position toggle button (desktop only) -->
+		{#if !isMobile()}
+			<Button size="sm" type="button" onclick={toggleProfilePosition} variant="ghost">
+				{profilePosition === 'side' ? 'Move to top' : 'Move to side'}
+			</Button>
+		{/if}
+
+		<Button
+			size="sm"
+			onclick={() => {
+				data.publication.preferences ??= {};
+				data.publication.preferences.hideProfileSection = true;
+				data = { ...data };
+			}}
+			variant="ghost"
+		>
+			hide profile
+		</Button>
+	</div>
+
+	<div
+		class={[
+			'flex flex-col gap-4 pt-16 pb-8',
+			profilePosition === 'side' && '@5xl/wrapper:h-screen @5xl/wrapper:pt-24'
+		]}
+	>
 		<!-- Avatar with edit capability -->
 		<button
 			type="button"
-			class="group relative size-32 cursor-pointer overflow-hidden rounded-full @5xl/wrapper:size-44"
+			class={[
+				'group relative size-32 cursor-pointer overflow-hidden rounded-full',
+				profilePosition === 'side' && '@5xl/wrapper:size-44'
+			]}
 			onmouseenter={() => (isHoveringAvatar = true)}
 			onmouseleave={() => (isHoveringAvatar = false)}
 			onclick={handleFileInputClick}
@@ -110,7 +137,7 @@
 							d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"
 						/>
 					</svg>
-					<span>Click to change</span>
+					<span class="font-medium">Click to change</span>
 				</div>
 			</div>
 		</button>
@@ -134,17 +161,16 @@
 		<div class="scrollbar -mx-4 grow overflow-x-hidden overflow-y-scroll px-4">
 			{#if data.publication}
 				<MarkdownTextEditor
-					bind:editor={descriptionEditor}
 					bind:contentDict={data.publication}
 					key="description"
-					placeholder="Add a description... (supports markdown)"
+					placeholder="Something about me..."
 					class=""
 				/>
 			{/if}
 		</div>
 
-		<div class="h-10.5 w-1 @5xl/wrapper:hidden"></div>
+		<div class={['h-10.5 w-1', profilePosition === 'side' && '@5xl/wrapper:hidden']}></div>
 
-		<MadeWithBlento class="hidden @5xl/wrapper:block" />
+		<MadeWithBlento class="hidden @5xl/wrapper:block {profilePosition === 'side' && '@5xl/wrapper:block'}" />
 	</div>
 </div>

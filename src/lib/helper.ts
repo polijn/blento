@@ -285,7 +285,7 @@ export async function refreshData(data: { updatedAt?: number; handle: string }) 
 }
 
 export function getName(data: WebsiteData): string {
-	return (data.publication?.name ?? data.profile.displayName) || data.handle;
+	return data.publication?.name || data.profile.displayName || data.handle;
 }
 
 export function getDescription(data: WebsiteData): string {
@@ -300,6 +300,10 @@ export function getHideProfileSection(data: WebsiteData): boolean {
 		return data?.publication?.preferences?.hideProfile;
 
 	return data.page !== 'blento.self';
+}
+
+export function getProfilePosition(data: WebsiteData): 'side' | 'top' {
+	return data?.publication?.preferences?.profilePosition ?? 'side';
 }
 
 export function isTyping() {
@@ -475,13 +479,23 @@ export async function savePage(
 				data.publication.url += '/' + data.page.replace('blento.', '');
 			}
 		}
-		promises.push(
-			putRecord({
-				collection: 'site.standard.publication',
-				rkey: data.page,
-				record: data.publication
-			})
-		);
+		if (data.page !== 'blento.self') {
+			promises.push(
+				putRecord({
+					collection: 'app.blento.page',
+					rkey: data.page,
+					record: data.publication
+				})
+			);
+		} else {
+			promises.push(
+				putRecord({
+					collection: 'site.standard.publication',
+					rkey: data.page,
+					record: data.publication
+				})
+			);
+		}
 
 		console.log('updating or adding publication', data.publication);
 	}

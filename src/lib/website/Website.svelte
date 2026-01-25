@@ -1,7 +1,13 @@
 <script lang="ts">
 	import Card from '../cards/Card/Card.svelte';
 	import Profile from './Profile.svelte';
-	import { getDescription, getHideProfileSection, getName, sortItems } from '../helper';
+	import {
+		getDescription,
+		getHideProfileSection,
+		getProfilePosition,
+		getName,
+		sortItems
+	} from '../helper';
 	import { innerWidth } from 'svelte/reactivity/window';
 	import { setDidContext, setHandleContext, setIsMobile } from './context';
 	import BaseCard from '../cards/BaseCard/BaseCard.svelte';
@@ -50,7 +56,7 @@
 		<div
 			class={[
 				'mx-auto max-w-lg',
-				!getHideProfileSection(data)
+				!getHideProfileSection(data) && getProfilePosition(data) === 'side'
 					? '@5xl/wrapper:grid @5xl/wrapper:max-w-7xl @5xl/wrapper:grid-cols-4'
 					: '@5xl/wrapper:max-w-4xl'
 			]}
