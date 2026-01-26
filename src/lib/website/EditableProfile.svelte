@@ -62,7 +62,12 @@
 			: '@5xl/wrapper:max-w-4xl @5xl/wrapper:px-12'
 	]}
 >
-	<div class={['absolute left-2 z-20 flex gap-2', profilePosition === 'side' ? 'left-14 top-2' : 'top-2']}>
+	<div
+		class={[
+			'absolute left-2 z-20 flex gap-2',
+			profilePosition === 'side' ? 'top-2 left-14' : 'top-2'
+		]}
+	>
 		<Button
 			size="icon"
 			onclick={() => {
