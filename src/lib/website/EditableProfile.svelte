@@ -8,7 +8,8 @@
 	import type { Editor } from '@tiptap/core';
 	import MadeWithBlento from './MadeWithBlento.svelte';
 
-	let { data = $bindable() }: { data: WebsiteData } = $props();
+	let { data = $bindable(), hideBlento = false }: { data: WebsiteData; hideBlento?: boolean } =
+		$props();
 
 	let profilePosition = $derived(getProfilePosition(data));
 
