@@ -18,8 +18,20 @@
 	import type { Did, Handle } from '@atcute/lexicons';
 	import QRModalProvider from '$lib/components/qr/QRModalProvider.svelte';
 	import EmptyState from './EmptyState.svelte';
+	import FloatingEditButton from './FloatingEditButton.svelte';
+	import { user } from '$lib/atproto';
+	import { env } from '$env/dynamic/public';
 
 	let { data }: { data: WebsiteData } = $props();
+
+	// Check if floating edit button will be visible (to hide MadeWithBlento)
+	const isOwnPage = $derived(user.isLoggedIn && user.profile?.did === data.did);
+	const isBlento = $derived(!env.PUBLIC_IS_SELFHOSTED && data.handle === 'blento.app');
+	const showFloatingButton = $derived(
+		isOwnPage ||
+			(isBlento && !user.isInitializing && !user.isLoggedIn) ||
+			(isBlento && user.isLoggedIn && user.profile?.handle !== data.handle)
+	);
 
 	let isMobile = $derived((innerWidth.current ?? 1000) < 1024);
 	setIsMobile(() => isMobile);
@@ -50,7 +62,7 @@
 	<QRModalProvider />
 	<div class="@container/wrapper relative w-full">
 		{#if !getHideProfileSection(data)}
-			<Profile {data} showEditButton={true} />
+			<Profile {data} hideBlento={showFloatingButton} />
 		{/if}
 
 		<div
@@ -78,4 +90,6 @@
 
 		<MadeWithBlento class="mx-auto block pb-8 text-center @5xl/wrapper:hidden" />
 	</div>
+
+	<FloatingEditButton {data} />
 </Context>
