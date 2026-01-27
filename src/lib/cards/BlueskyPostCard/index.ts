@@ -5,7 +5,6 @@ import { getPosts } from '$lib/atproto/methods';
 import type { PostView } from '@atcute/bluesky/types/app/feed/defs';
 import { parseBlueskyPostUrl, resolveUri } from './utils';
 
-
 export const BlueskyPostCardDefinition = {
 	type: 'blueskyPost',
 	contentComponent: BlueskyPostCard,

@@ -1,3 +1,5 @@
+import { dev } from '$app/environment';
+
 export const SITE = 'https://blento.app';
 
 type Permissions = {
@@ -44,4 +46,4 @@ export type AllowedCollection = ExtractCollectionBase<(typeof permissions.collec
 
 // which PDS to use for signup
 // ATTENTION: pds.rip is only for development, all accounts get deleted automatically after a week
-export const signUpPDS = 'https://pds.rip/';
+export const signUpPDS = dev ? 'https://pds.rip/' : 'https://selfhosted.social';
