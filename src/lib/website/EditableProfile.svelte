@@ -3,7 +3,7 @@
 	import { getImage, compressImage, getProfilePosition } from '$lib/helper';
 	import PlainTextEditor from '$lib/components/PlainTextEditor.svelte';
 	import MarkdownTextEditor from '$lib/components/MarkdownTextEditor.svelte';
-	import { Button } from '@foxui/core';
+	import { Avatar, Button } from '@foxui/core';
 	import { getIsMobile } from './context';
 	import type { Editor } from '@tiptap/core';
 	import MadeWithBlento from './MadeWithBlento.svelte';
@@ -149,15 +149,13 @@
 			onmouseleave={() => (isHoveringAvatar = false)}
 			onclick={handleFileInputClick}
 		>
-			{#if getAvatarUrl()}
-				<img
-					class="border-base-400 dark:border-base-800 size-full shrink-0 rounded-full border object-cover"
-					src={getAvatarUrl()}
-					alt=""
-				/>
-			{:else}
-				<div class="bg-base-300 dark:bg-base-700 size-full rounded-full"></div>
-			{/if}
+			<Avatar
+				src={getAvatarUrl()}
+				class={[
+					'border-base-400 dark:border-base-800 size-32 shrink-0 rounded-full border object-cover',
+					profilePosition === 'side' && '@5xl/wrapper:size-44'
+				]}
+			/>
 
 			<!-- Hover overlay -->
 			<div

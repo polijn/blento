@@ -2,6 +2,7 @@
 	import type { ContentComponentProps } from '$lib/cards/types';
 	import { getAdditionalUserData } from '$lib/website/context';
 	import type { AppBskyActorDefs } from '@atcute/bluesky';
+	import { Avatar } from '@foxui/core';
 
 	let { item }: ContentComponentProps = $props();
 
@@ -19,12 +20,7 @@
 				class="bg-base-100 dark:bg-base-800 hover:bg-base-200 dark:hover:bg-base-700 accent:bg-accent-200/30 accent:hover:bg-accent-200/50 flex h-52 w-44 min-w-44 flex-col items-center justify-center gap-2 rounded-xl p-2 transition-colors duration-150"
 				target="_blank"
 			>
-				<img
-					src={profile.avatar}
-					class="bg-base-200 dark:bg-base-700 accent:bg-accent-300 aspect-square size-28 rounded-full"
-					alt=""
-					loading="lazy"
-				/>
+				<Avatar src={profile.avatar} class="size-28" alt="" />
 				<div class="text-md line-clamp-1 max-w-full text-center font-bold">
 					{profile.displayName || profile.handle}
 				</div>

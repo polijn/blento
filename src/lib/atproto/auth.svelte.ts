@@ -17,7 +17,6 @@ import {
 	WellKnownHandleResolver
 } from '@atcute/identity-resolver';
 import { Client } from '@atcute/client';
-import type { ActorIdentifier, Did } from '@atcute/lexicons';
 
 import { dev } from '$app/environment';
 import { replaceState } from '$app/navigation';
@@ -26,6 +25,8 @@ import { metadata } from './metadata';
 import { getDetailedProfile } from './methods';
 import { signUpPDS } from './settings';
 import { SvelteURLSearchParams } from 'svelte/reactivity';
+
+import type { ActorIdentifier, Did } from '@atcute/lexicons';
 
 export const user = $state({
 	agent: null as OAuthUserAgent | null,
@@ -151,7 +152,7 @@ export async function logout() {
 	}
 }
 
-async function finalizeLogin(params: URLSearchParams, did?: Did) {
+async function finalizeLogin(params: SvelteURLSearchParams, did?: Did) {
 	try {
 		const { session } = await finalizeAuthorization(params);
 		replaceState(location.pathname + location.search, {});

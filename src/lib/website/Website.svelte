@@ -79,7 +79,7 @@
 		>
 			<div></div>
 			<div bind:this={container} class="@container/grid relative col-span-3 px-2 py-8 lg:px-8">
-				{#if data.cards.length === 0}
+				{#if data.cards.length === 0 && data.page === 'blento.self'}
 					<EmptyState {data} />
 				{:else}
 					{#each data.cards.toSorted(sortItems) as item (item.id)}

@@ -31,7 +31,7 @@ export async function getCache(handle: string, page: string, cache?: UserCache) 
 		result.page = 'blento.' + page;
 
 		result.publication = (result.publications as Awaited<ReturnType<typeof listRecords>>).find(
-			(v) => parseUri(v.uri).rkey === result.page
+			(v) => parseUri(v.uri)?.rkey === result.page
 		)?.value;
 		result.publication ??= {
 			name: result.profile?.displayName || result.profile?.handle,
@@ -139,7 +139,7 @@ export async function loadData(
 
 	parsedResult.publication = (
 		parsedResult.publications as Awaited<ReturnType<typeof listRecords>>
-	).find((v) => parseUri(v.uri).rkey === parsedResult.page)?.value;
+	).find((v) => parseUri(v.uri)?.rkey === parsedResult.page)?.value;
 	parsedResult.publication ??= {
 		name: profile?.displayName || profile?.handle,
 		description: profile?.description

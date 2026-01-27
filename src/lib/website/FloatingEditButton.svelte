@@ -6,6 +6,7 @@
 	import type { WebsiteData } from '$lib/types';
 	import { page } from '$app/state';
 	import type { ActorIdentifier } from '@atcute/lexicons';
+	import { loginModalState } from '$lib/atproto/UI/LoginModal.svelte';
 
 	let { data }: { data: WebsiteData } = $props();
 
@@ -63,12 +64,7 @@
 	</div>
 {:else if showLoginOnBlento}
 	<div class="fixed bottom-6 left-6 z-49">
-		<BlueskyLogin
-			login={async (handle) => {
-				await login(handle as ActorIdentifier);
-				return true;
-			}}
-		/>
+		<Button size="lg" onclick={() => loginModalState.show()}>Login</Button>
 	</div>
 {:else if showEditBlentoButton}
 	<div class="fixed bottom-6 left-6 z-49">
