@@ -103,13 +103,13 @@
 				style="font-variant-numeric: tabular-nums;"
 			>
 				<NumberFlow value={clockHours} format={{ minimumIntegerDigits: 2 }} />
-				<span class="text-base-400 dark:text-base-500 mx-0.5">:</span>
+				<span class="text-base-400 dark:text-base-500 accent:text-base-700 mx-0.5">:</span>
 				<NumberFlow
 					value={clockMinutes}
 					format={{ minimumIntegerDigits: 2 }}
 					digits={{ 1: { max: 5 } }}
 				/>
-				<span class="text-base-400 dark:text-base-500 mx-0.5">:</span>
+				<span class="text-base-400 dark:text-base-500 accent:text-base-700 mx-0.5">:</span>
 				<NumberFlow
 					value={clockSeconds}
 					format={{ minimumIntegerDigits: 2 }}
@@ -158,7 +158,8 @@
 					{#if eventDays > 0}
 						<div class="flex flex-col items-center">
 							<NumberFlow value={eventDays} trend={-1} class="text-4xl font-bold" />
-							<span class="text-base-500 dark:text-base-400 text-xs">days</span>
+							<span class="text-base-500 dark:text-base-400 accent:text-base-700 text-xs">days</span
+							>
 						</div>
 					{/if}
 					<div class="flex flex-col items-center">
@@ -168,7 +169,7 @@
 							format={{ minimumIntegerDigits: 2 }}
 							class="text-4xl font-bold"
 						/>
-						<span class="text-base-500 dark:text-base-400 text-xs">hrs</span>
+						<span class="text-base-500 dark:text-base-400 accent:text-base-700 text-xs">hrs</span>
 					</div>
 					<div class="flex flex-col items-center">
 						<NumberFlow
@@ -178,7 +179,7 @@
 							digits={{ 1: { max: 5 } }}
 							class="text-4xl font-bold"
 						/>
-						<span class="text-base-500 dark:text-base-400 text-xs">min</span>
+						<span class="text-base-500 dark:text-base-400 accent:text-base-700 text-xs">min</span>
 					</div>
 					<div class="flex flex-col items-center">
 						<NumberFlow
@@ -188,7 +189,7 @@
 							digits={{ 1: { max: 5 } }}
 							class="text-4xl font-bold"
 						/>
-						<span class="text-base-500 dark:text-base-400 text-xs">sec</span>
+						<span class="text-base-500 dark:text-base-400 accent:text-base-700 text-xs">sec</span>
 					</div>
 				</div>
 			</NumberFlowGroup>
