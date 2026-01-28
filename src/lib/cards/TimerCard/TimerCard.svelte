@@ -122,7 +122,7 @@
 					{#if eventDays > 0}
 						<div class="flex flex-col items-center">
 							<NumberFlow value={eventDays} trend={-1} class="text-4xl font-bold" />
-							<span class="text-base-500 dark:text-base-400 accent:text-base-700 text-xs">days</span
+							<span class="text-base-500 dark:text-base-400 accent:text-accent-950 text-xs">days</span
 							>
 						</div>
 					{/if}
@@ -133,7 +133,7 @@
 							format={{ minimumIntegerDigits: 2 }}
 							class="text-3xl font-bold @xs:text-4xl @sm:text-5xl @md:text-6xl @lg:text-7xl"
 						/>
-						<span class="text-base-500 dark:text-base-400 accent:text-base-700 text-xs">hrs</span>
+						<span class="text-base-500 dark:text-base-400 accent:text-accent-950 text-xs">hrs</span>
 					</div>
 					<div class="flex flex-col items-center">
 						<NumberFlow
@@ -143,7 +143,7 @@
 							digits={{ 1: { max: 5 } }}
 							class="text-3xl font-bold @xs:text-4xl @sm:text-5xl @md:text-6xl @lg:text-7xl"
 						/>
-						<span class="text-base-500 dark:text-base-400 accent:text-base-700 text-xs">min</span>
+						<span class="text-base-500 dark:text-base-400 accent:text-accent-950 text-xs">min</span>
 					</div>
 					<div class="flex flex-col items-center">
 						<NumberFlow
@@ -153,7 +153,7 @@
 							digits={{ 1: { max: 5 } }}
 							class="text-3xl font-bold @xs:text-4xl @sm:text-5xl @md:text-6xl @lg:text-7xl"
 						/>
-						<span class="text-base-500 dark:text-base-400 accent:text-base-700 text-xs">sec</span>
+						<span class="text-base-500 dark:text-base-400 accent:text-accent-950 text-xs">sec</span>
 					</div>
 				</div>
 			</NumberFlowGroup>
