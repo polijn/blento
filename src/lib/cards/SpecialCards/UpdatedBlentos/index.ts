@@ -41,7 +41,9 @@ export const UpdatedBlentosCardDefitition = {
 				}
 			}
 
-			const result = [...(await Promise.all(profiles)), ...existingUsersArray];
+			const result = [...(await Promise.all(profiles)), ...existingUsersArray].filter(
+				(v) => v && v.handle !== 'handle.invalid'
+			);
 
 			if (cache) {
 				await cache?.put('updatedBlentos', JSON.stringify(result));
