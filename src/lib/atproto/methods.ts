@@ -94,8 +94,7 @@ export async function getDetailedProfile(data?: { did?: Did; client?: Client }) 
 	});
 
 	if (!response.ok || response.data.handle === 'handle.invalid') {
-		// fall back to describe repo
-		const repo = await describeRepo({ did: data.did, client: data.client });
+		const repo = await describeRepo({ did: data.did });
 		return { handle: repo?.handle ?? 'handle.invalid', did: data.did };
 	}
 
