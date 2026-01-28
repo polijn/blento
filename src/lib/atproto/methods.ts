@@ -93,7 +93,11 @@ export async function getDetailedProfile(data?: { did?: Did; client?: Client }) 
 		params: { actor: data.did }
 	});
 
-	if (!response.ok) return;
+	if (!response.ok || response.data.handle === 'handle.invalid') {
+		// fall back to describe repo
+		const repo = await describeRepo({ did: data.did, client: data.client });
+		return { handle: repo?.handle ?? 'handle.invalid', did: data.did };
+	}
 
 	return response.data;
 }
