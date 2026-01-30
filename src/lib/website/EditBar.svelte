@@ -104,6 +104,7 @@
 	);
 
 	let colorPopoverOpen = $state(false);
+	let sizePopoverOpen = $state(false);
 	let settingsPopoverOpen = $state(false);
 
 	const minW = $derived(cardDef?.minW ?? 2);
@@ -145,55 +146,15 @@
 		class="dark:bg-base-900 bg-base-100 top-auto bottom-2 mx-4 mt-3 max-w-3xl rounded-full px-4 md:mx-auto"
 	>
 		{#if showMobileEditControls}
-			<!-- Mobile edit controls when a card is selected -->
+			<!-- Mobile edit controls: left = color, size, settings; right = delete, deselect -->
 			<div class="flex items-center gap-1">
-				<Button
-					size="iconLg"
-					variant="ghost"
-					class="backdrop-blur-none"
-					onclick={() => ondeselect?.()}
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="2"
-						stroke="currentColor"
-						class="size-5"
-					>
-						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-					</svg>
-				</Button>
-
-				<Button
-					size="iconLg"
-					variant="ghost"
-					class="text-rose-500 backdrop-blur-none"
-					onclick={() => ondelete?.()}
-				>
-					<svg
-						xmlns="http://www.w3.org/2000/svg"
-						fill="none"
-						viewBox="0 0 24 24"
-						stroke-width="1.5"
-						stroke="currentColor"
-						class="size-5"
-					>
-						<path
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
-						/>
-					</svg>
-				</Button>
-
 				{#if cardDef?.allowSetColor !== false}
 					<Popover bind:open={colorPopoverOpen}>
 						{#snippet child({ props })}
 							<button
 								{...props}
 								class={[
-									'm-1 size-5 cursor-pointer rounded-full',
+									'cursor-pointer rounded-xl p-2',
 									!selectedCard?.color ||
 									selectedCard.color === 'base' ||
 									selectedCard.color === 'transparent'
@@ -231,38 +192,64 @@
 					</Popover>
 				{/if}
 
-				{#if canSetSize(2, 2)}
-					<button
-						onclick={() => onsetsize?.(4, 4)}
-						class="hover:bg-accent-500/10 cursor-pointer rounded-xl p-2 text-xs font-bold"
-					>
-						S
-					</button>
-				{/if}
-				{#if canSetSize(4, 2)}
-					<button
-						onclick={() => onsetsize?.(8, 4)}
-						class="hover:bg-accent-500/10 cursor-pointer rounded-xl p-2 text-xs font-bold"
-					>
-						M
-					</button>
-				{/if}
-				{#if canSetSize(2, 4)}
-					<button
-						onclick={() => onsetsize?.(4, 8)}
-						class="hover:bg-accent-500/10 cursor-pointer rounded-xl p-2 text-xs font-bold"
-					>
-						L
-					</button>
-				{/if}
-				{#if canSetSize(4, 4)}
-					<button
-						onclick={() => onsetsize?.(8, 8)}
-						class="hover:bg-accent-500/10 cursor-pointer rounded-xl p-2 text-xs font-bold"
-					>
-						XL
-					</button>
-				{/if}
+				<Popover bind:open={sizePopoverOpen}>
+					{#snippet child({ props })}
+						<button {...props} class="hover:bg-accent-500/10 cursor-pointer rounded-xl p-2">
+							<svg
+								xmlns="http://www.w3.org/2000/svg"
+								fill="none"
+								viewBox="0 0 24 24"
+								stroke-width="1.5"
+								stroke="currentColor"
+								class="size-5"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"
+								/>
+							</svg>
+						</button>
+					{/snippet}
+					<div class="flex items-center gap-1">
+						{#if canSetSize(2, 2)}
+							<button
+								onclick={() => onsetsize?.(4, 4)}
+								class="hover:bg-accent-500/10 cursor-pointer rounded-xl p-2"
+							>
+								<div class="border-base-900 dark:border-base-50 size-3 rounded-sm border-2"></div>
+								<span class="sr-only">set size to 1x1</span>
+							</button>
+						{/if}
+						{#if canSetSize(4, 2)}
+							<button
+								onclick={() => onsetsize?.(8, 4)}
+								class="hover:bg-accent-500/10 cursor-pointer rounded-xl p-2"
+							>
+								<div class="border-base-900 dark:border-base-50 h-3 w-5 rounded-sm border-2"></div>
+								<span class="sr-only">set size to 2x1</span>
+							</button>
+						{/if}
+						{#if canSetSize(2, 4)}
+							<button
+								onclick={() => onsetsize?.(4, 8)}
+								class="hover:bg-accent-500/10 cursor-pointer rounded-xl p-2"
+							>
+								<div class="border-base-900 dark:border-base-50 h-5 w-3 rounded-sm border-2"></div>
+								<span class="sr-only">set size to 1x2</span>
+							</button>
+						{/if}
+						{#if canSetSize(4, 4)}
+							<button
+								onclick={() => onsetsize?.(8, 8)}
+								class="hover:bg-accent-500/10 cursor-pointer rounded-xl p-2"
+							>
+								<div class="border-base-900 dark:border-base-50 h-5 w-5 rounded-sm border-2"></div>
+								<span class="sr-only">set size to 2x2</span>
+							</button>
+						{/if}
+					</div>
+				</Popover>
 
 				{#if cardDef?.settingsComponent && selectedCard}
 					<Popover bind:open={settingsPopoverOpen} class="bg-base-50 dark:bg-base-900">
@@ -297,6 +284,46 @@
 						/>
 					</Popover>
 				{/if}
+			</div>
+			<div class="flex items-center gap-1">
+				<Button
+					size="iconLg"
+					variant="ghost"
+					class="text-rose-500 backdrop-blur-none"
+					onclick={() => ondelete?.()}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="1.5"
+						stroke="currentColor"
+						class="size-5"
+					>
+						<path
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+						/>
+					</svg>
+				</Button>
+				<Button
+					size="iconLg"
+					variant="ghost"
+					class="backdrop-blur-none"
+					onclick={() => ondeselect?.()}
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+						stroke-width="2"
+						stroke="currentColor"
+						class="size-5"
+					>
+						<path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+					</svg>
+				</Button>
 			</div>
 		{:else}
 			<!-- Normal add-card controls -->
