@@ -858,14 +858,6 @@
 <Account {data} />
 
 <Context {data}>
-	{#if !dev}
-		<div
-			class="bg-base-200 dark:bg-base-800 fixed inset-0 z-50 inline-flex h-full w-full items-center justify-center p-4 text-center lg:hidden"
-		>
-			Editing on mobile is not supported yet. Please use a desktop browser.
-		</div>
-	{/if}
-
 	<CardCommand
 		bind:open={showCardCommand}
 		onselect={(cardDef: CardDefinition) => {
