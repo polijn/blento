@@ -24,6 +24,7 @@ export const SectionCardDefinition = {
 	},
 
 	defaultColor: 'transparent',
+	minW: COLUMNS,
 	maxH: 1,
 	canResize: false,
 	settingsComponent: SectionCardSettings,
