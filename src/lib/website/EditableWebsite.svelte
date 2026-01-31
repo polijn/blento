@@ -538,13 +538,21 @@
 
 	let linkValue = $state('');
 
-	function addLink(url: string) {
+	function addLink(url: string, specificCardDef?: CardDefinition) {
 		let link = validateLink(url);
 		if (!link) {
 			toast.error('invalid link');
 			return;
 		}
 		let item = createEmptyCard(data.page);
+
+		if (specificCardDef?.onUrlHandler?.(link, item)) {
+			item.cardType = specificCardDef.type;
+			newItem.item = item;
+			saveNewItem();
+			toast(specificCardDef.name + ' added!');
+			return;
+		}
 
 		for (const cardDef of AllCardDefinitions.toSorted(
 			(a, b) => (b.urlHandlerPriority ?? 0) - (a.urlHandlerPriority ?? 0)
@@ -557,10 +565,6 @@
 				toast(cardDef.name + ' added!');
 				break;
 			}
-		}
-
-		if (linkValue === url) {
-			linkValue = '';
 		}
 	}
 
@@ -871,9 +875,18 @@
 					input.click();
 					return;
 				}
+			} else if (cardDef.type === 'video') {
+				const input = document.getElementById('video-input') as HTMLInputElement;
+				if (input) {
+					input.click();
+					return;
+				}
 			} else {
 				newCard(cardDef.type);
 			}
+		}}
+		onlink={(url, cardDef) => {
+			addLink(url, cardDef);
 		}}
 	/>
 
@@ -1138,7 +1151,9 @@
 	<FloatingEditButton {data} />
 
 	{#if dev}
-		<div class="bg-base-900/70 text-base-100 fixed top-2 right-2 z-50 rounded px-2 py-1 font-mono text-xs">
+		<div
+			class="bg-base-900/70 text-base-100 fixed top-2 right-2 z-50 rounded px-2 py-1 font-mono text-xs"
+		>
 			editedOn: {editedOn}
 		</div>
 	{/if}

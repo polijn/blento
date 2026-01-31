@@ -2,6 +2,7 @@
 	import { AllCardDefinitions } from '$lib/cards';
 	import type { CardDefinition } from '$lib/cards/types';
 	import { Command, Dialog } from 'bits-ui';
+	import { isTyping } from '$lib/helper';
 
 	const CardDefGroups = [
 		'Core',
@@ -18,11 +19,65 @@
 
 	let {
 		open = $bindable(false),
-		onselect
-	}: { open: boolean; onselect: (cardDef: CardDefinition) => void } = $props();
+		onselect,
+		onlink
+	}: {
+		open: boolean;
+		onselect: (cardDef: CardDefinition) => void;
+		onlink?: (url: string, cardDef: CardDefinition) => void;
+	} = $props();
+
+	let searchValue = $state('');
+
+	let normalizedUrl = $derived.by(() => {
+		if (!searchValue || searchValue.length < 8) return '';
+		try {
+			const val = searchValue.trim();
+			const urlStr = val.startsWith('http') ? val : `https://${val}`;
+			const url = new URL(urlStr);
+			if (!url.hostname.includes('.')) return '';
+			return urlStr;
+		} catch {
+			return '';
+		}
+	});
+
+	let urlMatchingCards = $derived.by(() => {
+		if (!normalizedUrl) return [];
+		return AllCardDefinitions.filter((d) => d.onUrlHandler)
+			.filter((d) => {
+				try {
+					const testItem = { cardData: {} };
+					return d.onUrlHandler!(normalizedUrl, testItem as any);
+				} catch {
+					return false;
+				}
+			})
+			.toSorted((a, b) => (b.urlHandlerPriority ?? 0) - (a.urlHandlerPriority ?? 0));
+	});
+
+	function selectUrl(cardDef: CardDefinition) {
+		const url = normalizedUrl;
+		open = false;
+		searchValue = '';
+		onlink?.(url, cardDef);
+	}
+
+	function commandFilter(value: string, search: string, keywords?: string[]): number {
+		if (value.startsWith('url:')) return 1;
+		const s = search.toLowerCase();
+		for (const t of [value, ...(keywords ?? [])]) {
+			if (t.toLowerCase().includes(s)) return 1;
+		}
+		return 0;
+	}
 
 	function handleKeydown(e: KeyboardEvent) {
 		if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+			e.preventDefault();
+			open = true;
+		}
+		if (e.key === '+' && !isTyping()) {
 			e.preventDefault();
 			open = true;
 		}
@@ -45,12 +100,17 @@
 				bar.
 			</Dialog.Description>
 			<Command.Root
+				filter={commandFilter}
 				class="border-base-200 dark:border-base-800 mx-auto flex h-full w-full max-w-[90vw] flex-col overflow-hidden rounded-2xl border bg-white dark:bg-black"
 			>
 				<Command.Input
 					class="focus-override placeholder:text-base-900/50 dark:placeholder:text-base-50/50 border-base-200 dark:border-base-800 bg-base-100 mx-1 mt-1 inline-flex truncate rounded-2xl rounded-tl-2xl px-4 text-sm transition-colors focus:ring-0 focus:outline-hidden dark:bg-black"
-					placeholder="Search for a card..."
+					placeholder="Search for a card or paste a link..."
+					oninput={(e) => {
+						searchValue = e.currentTarget.value;
+					}}
 				/>
+
 				<Command.List
 					class="focus:outline-accent-500/50 max-h-[50vh] overflow-x-hidden overflow-y-auto rounded-br-2xl rounded-bl-2xl bg-white px-2 pb-2 focus:border-0 dark:bg-black"
 				>
@@ -61,7 +121,36 @@
 							No results found.
 						</Command.Empty>
 
-						{#each CardDefGroups as group, index}
+						{#if urlMatchingCards.length > 0}
+							<Command.Group>
+								<Command.GroupHeading
+									class="text-base-600 dark:text-base-400 px-3 pt-3 pb-2 text-xs"
+								>
+									Add from link
+								</Command.GroupHeading>
+								<Command.GroupItems>
+									{#each urlMatchingCards as cardDef (cardDef.type)}
+										<Command.Item
+											value="url:{cardDef.type}"
+											onSelect={() => {
+												selectUrl(cardDef);
+											}}
+											class="rounded-button data-selected:bg-accent-500/10 flex h-10 cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-sm outline-hidden select-none"
+										>
+											{#if cardDef.icon}
+												<div class="text-base-700 dark:text-base-300">
+													{@html cardDef.icon}
+												</div>
+											{/if}
+											{cardDef.name}
+										</Command.Item>
+									{/each}
+								</Command.GroupItems>
+							</Command.Group>
+							<Command.Separator class="bg-base-900/5 dark:bg-base-50/5 my-1 h-px w-full" />
+						{/if}
+
+						{#each CardDefGroups as group, index (group)}
 							{#if group && AllCardDefinitions.some((cardDef) => cardDef.groups?.includes(group))}
 								<Command.Group>
 									<Command.GroupHeading
@@ -70,10 +159,11 @@
 										{group}
 									</Command.GroupHeading>
 									<Command.GroupItems>
-										{#each AllCardDefinitions.filter( (cardDef) => cardDef.groups?.includes(group) ) as cardDef}
+										{#each AllCardDefinitions.filter( (cardDef) => cardDef.groups?.includes(group) ) as cardDef (cardDef.type)}
 											<Command.Item
 												onSelect={() => {
 													open = false;
+													searchValue = '';
 													onselect(cardDef);
 												}}
 												class="rounded-button data-selected:bg-accent-500/10 flex h-10 cursor-pointer items-center gap-2 rounded-xl px-3 py-2.5 text-sm outline-hidden select-none"

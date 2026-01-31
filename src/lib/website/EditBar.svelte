@@ -9,9 +9,6 @@
 
 	let {
 		data,
-		linkValue = $bindable(),
-		newCard,
-		addLink,
 
 		showingMobileView = $bindable(),
 		isSaving = $bindable(),
@@ -22,6 +19,10 @@
 		handleImageInputChange,
 		handleVideoInputChange,
 
+		newCard,
+		addLink,
+		linkValue = $bindable(''),
+
 		showCardCommand,
 		selectedCard = null,
 		isMobile = false,
@@ -31,9 +32,6 @@
 		onsetsize
 	}: {
 		data: WebsiteData;
-		linkValue: string;
-		newCard: (type: string) => void;
-		addLink: (url: string) => void;
 
 		showingMobileView: boolean;
 
@@ -45,6 +43,10 @@
 		handleImageInputChange: (evt: Event) => void;
 		handleVideoInputChange: (evt: Event) => void;
 
+		newCard: (type?: string, cardData?: any) => void;
+		addLink: (url: string) => void;
+		linkValue: string;
+
 		showCardCommand: () => void;
 		selectedCard?: Item | null;
 		isMobile?: boolean;
@@ -55,7 +57,6 @@
 	} = $props();
 
 	let linkPopoverOpen = $state(false);
-
 	let imageInputRef: HTMLInputElement | undefined = $state();
 	let videoInputRef: HTMLInputElement | undefined = $state();
 
@@ -140,6 +141,7 @@
 	accept="video/*"
 	onchange={handleVideoInputChange}
 	class="hidden"
+	id="video-input"
 	multiple
 	bind:this={videoInputRef}
 />

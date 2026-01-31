@@ -1,6 +1,6 @@
 import { COLUMNS } from '$lib';
 import { CardDefinitionsByType } from '$lib/cards';
-import { clamp, fixAllCollisions } from '$lib/helper';
+import { clamp, findValidPosition, fixAllCollisions } from '$lib/helper';
 import type { Item } from '$lib/types';
 
 /**
@@ -23,28 +23,17 @@ function snapEven(v: number): number {
  */
 export function mirrorItemSize(item: Item, fromMobile: boolean): void {
 	const def = CardDefinitionsByType[item.cardType];
-	const minW = def?.minW ?? 2;
-	const maxW = def?.maxW ?? COLUMNS;
-	const minH = def?.minH ?? 2;
-	const maxH = def?.maxH ?? Infinity;
 
 	if (fromMobile) {
-		const srcW = item.mobileW;
-		const srcH = item.mobileH;
-		// Full-width cards stay full-width
-		item.w = srcW >= COLUMNS ? COLUMNS : clamp(snapEven(srcW / 2), minW, maxW);
-		item.h = clamp(snapEven((srcH * item.w) / srcW), minH, maxH);
+		// Mobile → Desktop: halve both dimensions, then clamp to card def constraints
+		// (constraints are in desktop units)
+		item.w = clamp(snapEven(item.mobileW / 2), def?.minW ?? 2, def?.maxW ?? COLUMNS);
+		item.h = clamp(Math.round(item.mobileH / 2), def?.minH ?? 1, def?.maxH ?? Infinity);
 	} else {
-		const srcW = item.w;
-		const srcH = item.h;
-		// Full-width cards stay full-width
-		if (srcW >= COLUMNS) {
-			item.mobileW = clamp(COLUMNS, minW, Math.min(maxW, COLUMNS));
-		} else {
-			const scaleFactor = Math.min(2, COLUMNS / srcW);
-			item.mobileW = clamp(snapEven(srcW * scaleFactor), minW, Math.min(maxW, COLUMNS));
-		}
-		item.mobileH = clamp(snapEven((srcH * item.mobileW) / srcW), minH, maxH);
+		// Desktop → Mobile: double both dimensions
+		// (don't apply card def constraints — they're in desktop units)
+		item.mobileW = Math.min(item.w * 2, COLUMNS);
+		item.mobileH = Math.max(item.h * 2, 2);
 	}
 }
 
@@ -54,20 +43,36 @@ export function mirrorItemSize(item: Item, fromMobile: boolean): void {
  * Mutates items in-place.
  */
 export function mirrorLayout(items: Item[], fromMobile: boolean): void {
+	// Mirror sizes first
 	for (const item of items) {
 		mirrorItemSize(item, fromMobile);
-
-		if (fromMobile) {
-			// Mobile → Desktop positions
-			item.x = clamp(Math.floor(item.mobileX / 2 / 2) * 2, 0, COLUMNS - item.w);
-			item.y = Math.max(0, Math.round(item.mobileY / 2));
-		} else {
-			// Desktop → Mobile positions
-			item.mobileX = clamp(Math.floor((item.x * 2) / 2) * 2, 0, COLUMNS - item.mobileW);
-			item.mobileY = Math.max(0, Math.round(item.y * 2));
-		}
 	}
 
-	// Resolve collisions on the target layout
-	fixAllCollisions(items, !fromMobile);
+	if (fromMobile) {
+		// Mobile → Desktop: reflow items to use the full grid width.
+		// Sort by mobile position so items are placed in reading order.
+		const sorted = items.toSorted(
+			(a, b) => a.mobileY - b.mobileY || a.mobileX - b.mobileX
+		);
+
+		// Place each item into the first available spot on the desktop grid
+		const placed: Item[] = [];
+		for (const item of sorted) {
+			item.x = 0;
+			item.y = 0;
+			findValidPosition(item, placed, false);
+			placed.push(item);
+		}
+	} else {
+		// Desktop → Mobile: proportional positions
+		for (const item of items) {
+			item.mobileX = clamp(
+				Math.floor((item.x * 2) / 2) * 2,
+				0,
+				COLUMNS - item.mobileW
+			);
+			item.mobileY = Math.max(0, Math.round(item.y * 2));
+		}
+		fixAllCollisions(items, true);
+	}
 }

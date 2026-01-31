@@ -17,7 +17,6 @@ export const TimerCardDefinition = {
 	type: 'timer',
 	contentComponent: TimerCard,
 	settingsComponent: TimerCardSettings,
-	sidebarButtonText: 'Timer',
 
 	createNew: (card) => {
 		card.w = 4;
@@ -31,8 +30,21 @@ export const TimerCardDefinition = {
 	},
 
 	allowSetColor: true,
-	name: 'Timer Card',
 	minW: 4,
 	canHaveLabel: true,
-	groups: ['Utilities']
+
+	migrate: (item) => {
+		const data = item.cardData as TimerCardData;
+		if (data.mode === 'event') {
+			item.cardType = 'countdown';
+			item.cardData = { targetDate: data.targetDate };
+		} else {
+			item.cardType = 'clock';
+			item.cardData = { timezone: data.timezone };
+		}
+		if (data.label) {
+			item.cardData.label = data.label;
+		}
+	}
+
 } as CardDefinition & { type: 'timer' };
