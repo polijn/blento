@@ -37,7 +37,7 @@
 		"PUBLIC_IS_SELFHOSTED": "true",
 		"PUBLIC_DOMAIN": "https://polijn.org",
 		"PUBLIC_GIPHY_API_TOKEN": "ltXijv1bkNPrEgnpJ0tIdLWXjnAeE7bL"
-	},
+	}
 
 	/**
 	 * Service Bindings (communicate between multiple Workers)
