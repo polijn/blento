@@ -256,7 +256,7 @@
 		}
 	}
 
-	const sidebarItems = AllCardDefinitions.filter((cardDef) => cardDef.sidebarButtonText);
+	const sidebarItems = AllCardDefinitions.filter((cardDef) => cardDef.name);
 
 	let debugPoint = $state({ x: 0, y: 0 });
 

@@ -15,7 +15,6 @@ import { SectionCardDefinition } from './SectionCard';
 import { UpdatedBlentosCardDefitition } from './SpecialCards/UpdatedBlentos';
 import { TextCardDefinition } from './TextCard';
 import type { CardDefinition } from './types';
-import { VideoCardDefinition } from './VideoCard';
 import { YoutubeCardDefinition } from './YoutubeVideoCard';
 import { BlueskyProfileCardDefinition } from './BlueskyProfileCard';
 import { GithubProfileCardDefitition } from './GitHubProfileCard';
@@ -41,7 +40,6 @@ export const AllCardDefinitions = [
 	GuestbookCardDefinition,
 	ButtonCardDefinition,
 	ImageCardDefinition,
-	VideoCardDefinition,
 	TextCardDefinition,
 	LinkCardDefinition,
 	BigSocialCardDefinition,
