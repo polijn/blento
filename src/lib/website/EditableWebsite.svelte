@@ -39,6 +39,7 @@
 	import { launchConfetti } from '@foxui/visual';
 	import Controls from './Controls.svelte';
 	import CardCommand from '$lib/components/card-command/CardCommand.svelte';
+	import { shouldMirror, mirrorLayout } from './layout-mirror';
 
 	let {
 		data
@@ -122,6 +123,17 @@
 
 	setIsMobile(() => isMobile);
 
+	// svelte-ignore state_referenced_locally
+	let editedOn = $state(data.publication.preferences?.editedOn ?? 0);
+
+	function onLayoutChanged() {
+		// Set the bit for the current layout: desktop=1, mobile=2
+		editedOn = editedOn | (isMobile ? 2 : 1);
+		if (shouldMirror(editedOn)) {
+			mirrorLayout(items, isMobile);
+		}
+	}
+
 	const isCoarse = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
 	setIsCoarse(() => isCoarse);
 
@@ -191,6 +203,8 @@
 		compactItems(items, false);
 		compactItems(items, true);
 
+		onLayoutChanged();
+
 		newItem = {};
 
 		await tick();
@@ -214,6 +228,10 @@
 			if (data.publication?.icon) {
 				await checkAndUploadImage(data.publication, 'icon');
 			}
+
+			// Persist layout editing state
+			data.publication.preferences ??= {};
+			data.publication.preferences.editedOn = editedOn;
 
 			await savePage(data, items, publication);
 
@@ -494,6 +512,7 @@
 		if (touchDragActive && activeDragElement.item) {
 			// Finalize position
 			fixCollisions(items, activeDragElement.item, isMobile);
+			onLayoutChanged();
 
 			activeDragElement.x = -1;
 			activeDragElement.y = -1;
@@ -645,6 +664,8 @@
 			compactItems(items, true);
 		}
 
+		onLayoutChanged();
+
 		await tick();
 
 		scrollToItem(item, isMobile, container);
@@ -779,6 +800,8 @@
 		fixCollisions(items, item, true, true);
 		compactItems(items, false);
 		compactItems(items, true);
+
+		onLayoutChanged();
 
 		await tick();
 
@@ -1002,6 +1025,7 @@
 
 						// Fix collisions and compact items after drag ends
 						fixCollisions(items, activeDragElement.item, isMobile);
+						onLayoutChanged();
 					}
 					activeDragElement.x = -1;
 					activeDragElement.y = -1;
@@ -1024,6 +1048,7 @@
 							items = items.filter((it) => it !== item);
 							compactItems(items, false);
 							compactItems(items, true);
+							onLayoutChanged();
 						}}
 						onsetsize={(newW: number, newH: number) => {
 							if (isMobile) {
@@ -1035,6 +1060,7 @@
 							}
 
 							fixCollisions(items, item, isMobile);
+							onLayoutChanged();
 						}}
 						ondragstart={(e: DragEvent) => {
 							const target = e.currentTarget as HTMLDivElement;
@@ -1069,7 +1095,6 @@
 		</div>
 	</div>
 
-
 	<EditBar
 		{data}
 		bind:linkValue
@@ -1095,6 +1120,7 @@
 				items = items.filter((it) => it.id !== selectedCardId);
 				compactItems(items, false);
 				compactItems(items, true);
+				onLayoutChanged();
 				selectedCardId = null;
 			}
 		}}
@@ -1108,6 +1134,7 @@
 					selectedCard.h = h;
 				}
 				fixCollisions(items, selectedCard, isMobile);
+				onLayoutChanged();
 			}
 		}}
 	/>
@@ -1115,4 +1142,10 @@
 	<Toaster />
 
 	<FloatingEditButton {data} />
+
+	{#if dev}
+		<div class="bg-base-900/70 text-base-100 fixed top-2 right-2 z-50 rounded px-2 py-1 font-mono text-xs">
+			editedOn: {editedOn}
+		</div>
+	{/if}
 </Context>
