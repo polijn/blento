@@ -85,13 +85,27 @@
 {/snippet}
 
 <div class="z-10 flex h-full w-full flex-col gap-4 overflow-y-scroll p-4">
-	{#each feed ?? [] as play (play.uri)}
-		{#if play.value.originUrl}
-			<a href={play.value.originUrl} target="_blank" rel="noopener noreferrer" class="w-full">
+	{#if feed && feed.length > 0}
+		{#each feed as play (play.uri)}
+			{#if play.value.originUrl}
+				<a href={play.value.originUrl} target="_blank" rel="noopener noreferrer" class="w-full">
+					{@render musicItem(play)}
+				</a>
+			{:else}
 				{@render musicItem(play)}
-			</a>
-		{:else}
-			{@render musicItem(play)}
-		{/if}
-	{/each}
+			{/if}
+		{/each}
+	{:else if feed}
+		<div
+			class="text-base-500 dark:text-base-400 accent:text-white/60 flex h-full items-center justify-center text-center text-sm"
+		>
+			No recent plays found.
+		</div>
+	{:else}
+		<div
+			class="text-base-500 dark:text-base-400 accent:text-white/60 flex h-full items-center justify-center text-center text-sm"
+		>
+			Loading plays...
+		</div>
+	{/if}
 </div>

@@ -24,7 +24,7 @@
 	import EditingCard from '../cards/Card/EditingCard.svelte';
 	import { AllCardDefinitions, CardDefinitionsByType } from '../cards';
 	import { tick, type Component } from 'svelte';
-	import type { CreationModalComponentProps } from '../cards/types';
+	import type { CardDefinition, CreationModalComponentProps } from '../cards/types';
 	import { dev } from '$app/environment';
 	import { setIsMobile } from './context';
 	import BaseEditingCard from '../cards/BaseCard/BaseEditingCard.svelte';
@@ -38,6 +38,7 @@
 	import { user } from '$lib/atproto';
 	import { launchConfetti } from '@foxui/visual';
 	import Controls from './Controls.svelte';
+	import CardCommand from '$lib/components/card-command/CardCommand.svelte';
 
 	let {
 		data
@@ -362,15 +363,21 @@
 		return { x: gridX, y: gridY, swapWithId, placement };
 	}
 
-	let linkValue = $state('');
-
-	function addLink(url: string) {
+	function addLink(url: string, specificCardDef?: CardDefinition) {
 		let link = validateLink(url);
 		if (!link) {
 			toast.error('invalid link');
 			return;
 		}
 		let item = createEmptyCard(data.page);
+
+		if (specificCardDef?.onUrlHandler?.(link, item)) {
+			item.cardType = specificCardDef.type;
+			newItem.item = item;
+			saveNewItem();
+			toast(specificCardDef.name + ' added!');
+			return;
+		}
 
 		for (const cardDef of AllCardDefinitions.toSorted(
 			(a, b) => (b.urlHandlerPriority ?? 0) - (a.urlHandlerPriority ?? 0)
@@ -383,10 +390,6 @@
 				toast(cardDef.name + ' added!');
 				break;
 			}
-		}
-
-		if (linkValue === url) {
-			linkValue = '';
 		}
 	}
 
@@ -645,6 +648,8 @@
 	}
 
 	// $inspect(items);
+
+	let showCardCommand = $state(true);
 </script>
 
 <svelte:body
@@ -683,6 +688,30 @@
 			Editing on mobile is not supported yet. Please use a desktop browser.
 		</div>
 	{/if}
+
+	<CardCommand
+		bind:open={showCardCommand}
+		onselect={(cardDef: CardDefinition) => {
+			if (cardDef.type === 'image') {
+				const input = document.getElementById('image-input') as HTMLInputElement;
+				if (input) {
+					input.click();
+					return;
+				}
+			} else if (cardDef.type === 'video') {
+				const input = document.getElementById('video-input') as HTMLInputElement;
+				if (input) {
+					input.click();
+					return;
+				}
+			} else {
+				newCard(cardDef.type);
+			}
+		}}
+		onlink={(url, cardDef) => {
+			addLink(url, cardDef);
+		}}
+	/>
 
 	<Controls bind:data />
 
@@ -900,17 +929,33 @@
 		</div>
 	</Sidebar>
 
+	<input
+		type="file"
+		accept="image/*"
+		onchange={handleImageInputChange}
+		class="hidden"
+		id="image-input"
+		multiple
+	/>
+
+	<input
+		type="file"
+		accept="video/*"
+		onchange={handleVideoInputChange}
+		class="hidden"
+		id="video-input"
+		multiple
+	/>
+
 	<EditBar
 		{data}
-		bind:linkValue
 		bind:isSaving
 		bind:showingMobileView
 		{hasUnsavedChanges}
-		{newCard}
-		{addLink}
 		{save}
-		{handleImageInputChange}
-		{handleVideoInputChange}
+		showCardCommand={() => {
+			showCardCommand = true;
+		}}
 	/>
 
 	<Toaster />

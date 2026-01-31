@@ -30,6 +30,8 @@ import { EventCardDefinition } from './EventCard';
 import { VCardCardDefinition } from './VCardCard';
 import { DrawCardDefinition } from './DrawCard';
 import { TimerCardDefinition } from './TimerCard';
+import { ClockCardDefinition } from './ClockCard';
+import { CountdownCardDefinition } from './CountdownCard';
 import { SpotifyCardDefinition } from './SpotifyCard';
 import { ButtonCardDefinition } from './ButtonCard';
 import { GuestbookCardDefinition } from './GuestbookCard';
@@ -69,6 +71,8 @@ export const AllCardDefinitions = [
 	VCardCardDefinition,
 	DrawCardDefinition,
 	TimerCardDefinition,
+	ClockCardDefinition,
+	CountdownCardDefinition,
 	SpotifyCardDefinition
 	// Model3DCardDefinition
 ] as const;
