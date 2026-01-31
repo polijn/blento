@@ -39,9 +39,23 @@
 			<Badge size="md" class="accent:text-accent-950">{collections.length}</Badge>
 		{/if}
 	</div>
-	<div class="flex w-full flex-wrap gap-2 overflow-x-hidden overflow-y-scroll px-4">
-		{#each collections ?? [] as collection (collection)}
-			<Button target="_blank" href={getLink(collection)} size="sm">{collection}</Button>
-		{/each}
-	</div>
+	{#if collections && collections.length > 0}
+		<div class="flex w-full flex-wrap gap-2 overflow-x-hidden overflow-y-scroll px-4">
+			{#each collections as collection (collection)}
+				<Button target="_blank" href={getLink(collection)} size="sm">{collection}</Button>
+			{/each}
+		</div>
+	{:else if collections}
+		<div
+			class="text-base-500 dark:text-base-400 accent:text-white/60 flex h-full items-center justify-center text-center text-sm"
+		>
+			No collections found.
+		</div>
+	{:else}
+		<div
+			class="text-base-500 dark:text-base-400 accent:text-white/60 flex h-full items-center justify-center text-center text-sm"
+		>
+			Loading collections...
+		</div>
+	{/if}
 </div>

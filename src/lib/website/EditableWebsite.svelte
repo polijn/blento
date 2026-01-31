@@ -7,6 +7,7 @@
 		compactItems,
 		createEmptyCard,
 		findValidPosition,
+		fixAllCollisions,
 		fixCollisions,
 		getHideProfileSection,
 		getProfilePosition,
@@ -24,9 +25,9 @@
 	import EditingCard from '../cards/Card/EditingCard.svelte';
 	import { AllCardDefinitions, CardDefinitionsByType } from '../cards';
 	import { tick, type Component } from 'svelte';
-	import type { CreationModalComponentProps } from '../cards/types';
+	import type { CardDefinition, CreationModalComponentProps } from '../cards/types';
 	import { dev } from '$app/environment';
-	import { setIsMobile } from './context';
+	import { setIsCoarse, setIsMobile, setSelectedCardId, setSelectCard } from './context';
 	import BaseEditingCard from '../cards/BaseCard/BaseEditingCard.svelte';
 	import Context from './Context.svelte';
 	import Head from './Head.svelte';
@@ -35,9 +36,13 @@
 	import EditBar from './EditBar.svelte';
 	import SaveModal from './SaveModal.svelte';
 	import FloatingEditButton from './FloatingEditButton.svelte';
-	import { user } from '$lib/atproto';
+	import { user, resolveHandle, listRecords, getCDNImageBlobUrl } from '$lib/atproto';
+	import * as TID from '@atcute/tid';
 	import { launchConfetti } from '@foxui/visual';
 	import Controls from './Controls.svelte';
+	import CardCommand from '$lib/components/card-command/CardCommand.svelte';
+	import { shouldMirror, mirrorLayout } from './layout-mirror';
+	import { SvelteMap } from 'svelte/reactivity';
 
 	let {
 		data
@@ -47,9 +52,6 @@
 
 	// Check if floating login button will be visible (to hide MadeWithBlento)
 	const showLoginOnEditPage = $derived(!user.isInitializing && !user.isLoggedIn);
-
-	let accentColor = $derived(data.publication?.preferences?.accentColor ?? 'pink');
-	let baseColor = $derived(data.publication?.preferences?.baseColor ?? 'stone');
 
 	function updateTheme(newAccent: string, newBase: string) {
 		data.publication.preferences ??= {};
@@ -124,6 +126,30 @@
 
 	setIsMobile(() => isMobile);
 
+	// svelte-ignore state_referenced_locally
+	let editedOn = $state(data.publication.preferences?.editedOn ?? 0);
+
+	function onLayoutChanged() {
+		// Set the bit for the current layout: desktop=1, mobile=2
+		editedOn = editedOn | (isMobile ? 2 : 1);
+		if (shouldMirror(editedOn)) {
+			mirrorLayout(items, isMobile);
+		}
+	}
+
+	const isCoarse = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+	setIsCoarse(() => isCoarse);
+
+	let selectedCardId: string | null = $state(null);
+	let selectedCard = $derived(
+		selectedCardId ? (items.find((i) => i.id === selectedCardId) ?? null) : null
+	);
+
+	setSelectedCardId(() => selectedCardId);
+	setSelectCard((id: string | null) => {
+		selectedCardId = id;
+	});
+
 	const getY = (item: Item) => (isMobile ? (item.mobileY ?? item.y) : item.y);
 	const getH = (item: Item) => (isMobile ? (item.mobileH ?? item.h) : item.h);
 
@@ -140,6 +166,8 @@
 	}
 
 	function newCard(type: string = 'link', cardData?: any) {
+		selectedCardId = null;
+
 		// close sidebar if open
 		const popover = document.getElementById('mobile-menu');
 		if (popover) {
@@ -178,6 +206,8 @@
 		compactItems(items, false);
 		compactItems(items, true);
 
+		onLayoutChanged();
+
 		newItem = {};
 
 		await tick();
@@ -202,6 +232,10 @@
 				await checkAndUploadImage(data.publication, 'icon');
 			}
 
+			// Persist layout editing state
+			data.publication.preferences ??= {};
+			data.publication.preferences.editedOn = editedOn;
+
 			await savePage(data, items, publication);
 
 			publication = JSON.stringify(data.publication);
@@ -225,22 +259,294 @@
 		}
 	}
 
-	const sidebarItems = AllCardDefinitions.filter((cardDef) => cardDef.sidebarButtonText);
+	const sidebarItems = AllCardDefinitions.filter((cardDef) => cardDef.name);
+
+	function addAllCardTypes() {
+		const groupOrder = ['Core', 'Social', 'Media', 'Content', 'Visual', 'Utilities', 'Games'];
+		const grouped = new SvelteMap<string, CardDefinition[]>();
+
+		for (const def of AllCardDefinitions) {
+			if (!def.name) continue;
+			const group = def.groups?.[0] ?? 'Other';
+			if (!grouped.has(group)) grouped.set(group, []);
+			grouped.get(group)!.push(def);
+		}
+
+		// Sort groups by predefined order, unknowns at end
+		const sortedGroups = [...grouped.keys()].sort((a, b) => {
+			const ai = groupOrder.indexOf(a);
+			const bi = groupOrder.indexOf(b);
+			return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);
+		});
+
+		// Sample data for cards that would otherwise render empty
+		const sampleData: Record<string, Record<string, unknown>> = {
+			text: { text: 'The quick brown fox jumps over the lazy dog. This is a sample text card.' },
+			link: {
+				href: 'https://bsky.app',
+				title: 'Bluesky',
+				domain: 'bsky.app',
+				description: 'Social networking that gives you choice',
+				hasFetched: true
+			},
+			image: {
+				image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600',
+				alt: 'Mountain landscape'
+			},
+			button: { text: 'Visit Bluesky', href: 'https://bsky.app' },
+			bigsocial: { platform: 'bluesky', href: 'https://bsky.app', color: '0085ff' },
+			blueskyPost: {
+				uri: 'at://did:plc:z72i7hdynmk6r22z27h6tvur/app.bsky.feed.post/3jt64kgkbbs2y',
+				href: 'https://bsky.app/profile/bsky.app/post/3jt64kgkbbs2y'
+			},
+			blueskyProfile: {
+				handle: 'bsky.app',
+				displayName: 'Bluesky',
+				avatar:
+					'https://cdn.bsky.app/img/avatar/plain/did:plc:z72i7hdynmk6r22z27h6tvur/bafkreihagr2cmvl2jt4mgx3sppwe2it3fwolkrbtjrhcnwjk4pcnbaq53m@jpeg'
+			},
+			blueskyMedia: {},
+			latestPost: {},
+			youtubeVideo: {
+				youtubeId: 'dQw4w9WgXcQ',
+				poster: 'https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg',
+				href: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+				showInline: true
+			},
+			'spotify-list-embed': {
+				spotifyType: 'album',
+				spotifyId: '4aawyAB9vmqN3uQ7FjRGTy',
+				href: 'https://open.spotify.com/album/4aawyAB9vmqN3uQ7FjRGTy'
+			},
+			latestLivestream: {},
+			livestreamEmbed: {
+				href: 'https://stream.place/',
+				embed: 'https://stream.place/embed/'
+			},
+			mapLocation: { lat: 48.8584, lon: 2.2945, zoom: 13, name: 'Eiffel Tower, Paris' },
+			gif: { url: 'https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.mp4', alt: 'Cat typing' },
+			event: {
+				uri: 'at://did:plc:257wekqxg4hyapkq6k47igmp/community.lexicon.calendar.event/3mcsoqzy7gm2q'
+			},
+			guestbook: { label: 'Guestbook' },
+			githubProfile: { user: 'sveltejs', href: 'https://github.com/sveltejs' },
+			photoGallery: {
+				galleryUri: 'at://did:plc:tas6hj2xjrqben5653v5kohk/social.grain.gallery/3mclhsljs6h2w'
+			},
+			atprotocollections: {},
+			publicationList: {},
+			recentPopfeedReviews: {},
+			recentTealFMPlays: {},
+			statusphere: { emoji: '✨' },
+			vcard: {},
+			'fluid-text': { text: 'Hello World' },
+			draw: { strokesJson: '[]', viewBox: '', strokeWidth: 1, locked: true },
+			clock: {},
+			countdown: { targetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() },
+			timer: {},
+			'dino-game': {},
+			tetris: {},
+			updatedBlentos: {}
+		};
+
+		// Labels for cards that support canHaveLabel
+		const sampleLabels: Record<string, string> = {
+			image: 'Mountain Landscape',
+			mapLocation: 'Eiffel Tower',
+			gif: 'Cat Typing',
+			bigsocial: 'Bluesky',
+			guestbook: 'Guestbook',
+			statusphere: 'My Status',
+			recentPopfeedReviews: 'My Reviews',
+			recentTealFMPlays: 'Recently Played',
+			clock: 'Local Time',
+			countdown: 'Launch Day',
+			timer: 'Timer',
+			'dino-game': 'Dino Game',
+			tetris: 'Tetris',
+			blueskyMedia: 'Bluesky Media'
+		};
+
+		const newItems: Item[] = [];
+		let cursorY = 0;
+		let mobileCursorY = 0;
+
+		for (const group of sortedGroups) {
+			const defs = grouped.get(group)!;
+
+			// Add a section heading for the group
+			const heading = createEmptyCard(data.page);
+			heading.cardType = 'section';
+			heading.cardData = { text: group, verticalAlign: 'bottom', textSize: 1 };
+			heading.w = COLUMNS;
+			heading.h = 1;
+			heading.x = 0;
+			heading.y = cursorY;
+			heading.mobileW = COLUMNS;
+			heading.mobileH = 2;
+			heading.mobileX = 0;
+			heading.mobileY = mobileCursorY;
+			newItems.push(heading);
+			cursorY += 1;
+			mobileCursorY += 2;
+
+			// Place cards in rows
+			let rowX = 0;
+			let rowMaxH = 0;
+			let mobileRowX = 0;
+			let mobileRowMaxH = 0;
+
+			for (const def of defs) {
+				if (def.type === 'section' || def.type === 'embed') continue;
+
+				const item = createEmptyCard(data.page);
+				item.cardType = def.type;
+				item.cardData = {};
+				def.createNew?.(item);
+
+				// Merge in sample data (without overwriting createNew defaults)
+				const extra = sampleData[def.type];
+				if (extra) {
+					item.cardData = { ...item.cardData, ...extra };
+				}
+
+				// Set item-level color for cards that need it
+				if (def.type === 'button') {
+					item.color = 'transparent';
+				}
+
+				// Add label if card supports it
+				const label = sampleLabels[def.type];
+				if (label && def.canHaveLabel) {
+					item.cardData.label = label;
+				}
+
+				// Desktop layout
+				if (rowX + item.w > COLUMNS) {
+					cursorY += rowMaxH;
+					rowX = 0;
+					rowMaxH = 0;
+				}
+				item.x = rowX;
+				item.y = cursorY;
+				rowX += item.w;
+				rowMaxH = Math.max(rowMaxH, item.h);
+
+				// Mobile layout
+				if (mobileRowX + item.mobileW > COLUMNS) {
+					mobileCursorY += mobileRowMaxH;
+					mobileRowX = 0;
+					mobileRowMaxH = 0;
+				}
+				item.mobileX = mobileRowX;
+				item.mobileY = mobileCursorY;
+				mobileRowX += item.mobileW;
+				mobileRowMaxH = Math.max(mobileRowMaxH, item.mobileH);
+
+				newItems.push(item);
+			}
+
+			// Move cursor past last row
+			cursorY += rowMaxH;
+			mobileCursorY += mobileRowMaxH;
+		}
+
+		items = newItems;
+		onLayoutChanged();
+	}
+
+	let copyInput = $state('');
+	let isCopying = $state(false);
+
+	async function copyPageFrom() {
+		const input = copyInput.trim();
+		if (!input) return;
+
+		isCopying = true;
+		try {
+			// Parse "handle" or "handle/page"
+			const parts = input.split('/');
+			const handle = parts[0];
+			const pageName = parts[1] || 'self';
+
+			const did = await resolveHandle({ handle: handle as `${string}.${string}` });
+			if (!did) throw new Error('Could not resolve handle');
+
+			const records = await listRecords({ did, collection: 'app.blento.card' });
+			const targetPage = 'blento.' + pageName;
+
+			const copiedCards: Item[] = records
+				.map((r) => ({ ...r.value }) as Item)
+				.filter((card) => {
+					// v0/v1 cards without page field belong to blento.self
+					if (!card.page) return targetPage === 'blento.self';
+					return card.page === targetPage;
+				})
+				.map((card) => {
+					// Apply v0→v1 migration (coords were halved in old format)
+					if (!card.version) {
+						card.x *= 2;
+						card.y *= 2;
+						card.h *= 2;
+						card.w *= 2;
+						card.mobileX *= 2;
+						card.mobileY *= 2;
+						card.mobileH *= 2;
+						card.mobileW *= 2;
+						card.version = 1;
+					}
+
+					// Convert blob refs to CDN URLs using source DID
+					if (card.cardData) {
+						for (const key of Object.keys(card.cardData)) {
+							const val = card.cardData[key];
+							if (val && typeof val === 'object' && val.$type === 'blob') {
+								const url = getCDNImageBlobUrl({ did, blob: val });
+								if (url) card.cardData[key] = url;
+							}
+						}
+					}
+
+					// Regenerate ID and assign to current page
+					card.id = TID.now();
+					card.page = data.page;
+					return card;
+				});
+
+			if (copiedCards.length === 0) {
+				toast.error('No cards found on that page');
+				return;
+			}
+
+			fixAllCollisions(copiedCards);
+			fixAllCollisions(copiedCards, true);
+			compactItems(copiedCards);
+			compactItems(copiedCards, true);
+
+			items = copiedCards;
+			onLayoutChanged();
+			toast.success(`Copied ${copiedCards.length} cards from ${handle}`);
+		} catch (e) {
+			console.error('Failed to copy page:', e);
+			toast.error('Failed to copy page');
+		} finally {
+			isCopying = false;
+		}
+	}
 
 	let debugPoint = $state({ x: 0, y: 0 });
 
-	function getDragXY(
-		e: DragEvent & {
-			currentTarget: EventTarget & HTMLDivElement;
-		}
+	function getGridPosition(
+		clientX: number,
+		clientY: number
 	):
 		| { x: number; y: number; swapWithId: string | null; placement: 'above' | 'below' | null }
 		| undefined {
 		if (!container || !activeDragElement.item) return;
 
 		// x, y represent the top-left corner of the dragged card
-		const x = e.clientX + activeDragElement.mouseDeltaX;
-		const y = e.clientY + activeDragElement.mouseDeltaY;
+		const x = clientX + activeDragElement.mouseDeltaX;
+		const y = clientY + activeDragElement.mouseDeltaY;
 
 		const rect = container.getBoundingClientRect();
 		const currentMargin = isMobile ? mobileMargin : margin;
@@ -362,15 +668,167 @@
 		return { x: gridX, y: gridY, swapWithId, placement };
 	}
 
+	function getDragXY(
+		e: DragEvent & {
+			currentTarget: EventTarget & HTMLDivElement;
+		}
+	) {
+		return getGridPosition(e.clientX, e.clientY);
+	}
+
+	// Touch drag system (instant drag on selected card)
+	let touchDragActive = $state(false);
+
+	function touchStart(e: TouchEvent) {
+		if (!selectedCardId || !container) return;
+		const touch = e.touches[0];
+		if (!touch) return;
+
+		// Check if the touch is on the selected card element
+		const target = (e.target as HTMLElement)?.closest?.('.card');
+		if (!target || target.id !== selectedCardId) return;
+
+		const item = items.find((i) => i.id === selectedCardId);
+		if (!item || item.cardData?.locked) return;
+
+		// Start dragging immediately
+		touchDragActive = true;
+
+		const cardEl = container.querySelector(`#${CSS.escape(selectedCardId)}`) as HTMLDivElement;
+		if (!cardEl) return;
+
+		activeDragElement.element = cardEl;
+		activeDragElement.w = item.w;
+		activeDragElement.h = item.h;
+		activeDragElement.item = item;
+
+		// Store original positions of all items
+		activeDragElement.originalPositions = new Map();
+		for (const it of items) {
+			activeDragElement.originalPositions.set(it.id, {
+				x: it.x,
+				y: it.y,
+				mobileX: it.mobileX,
+				mobileY: it.mobileY
+			});
+		}
+
+		const rect = cardEl.getBoundingClientRect();
+		activeDragElement.mouseDeltaX = rect.left - touch.clientX;
+		activeDragElement.mouseDeltaY = rect.top - touch.clientY;
+	}
+
+	function touchMove(e: TouchEvent) {
+		if (!touchDragActive) return;
+
+		const touch = e.touches[0];
+		if (!touch) return;
+
+		e.preventDefault();
+
+		const result = getGridPosition(touch.clientX, touch.clientY);
+		if (!result || !activeDragElement.item) return;
+
+		const draggedOrigPos = activeDragElement.originalPositions.get(activeDragElement.item.id);
+
+		// Reset all items to original positions first
+		for (const it of items) {
+			const origPos = activeDragElement.originalPositions.get(it.id);
+			if (origPos && it !== activeDragElement.item) {
+				if (isMobile) {
+					it.mobileX = origPos.mobileX;
+					it.mobileY = origPos.mobileY;
+				} else {
+					it.x = origPos.x;
+					it.y = origPos.y;
+				}
+			}
+		}
+
+		// Update dragged item position
+		if (isMobile) {
+			activeDragElement.item.mobileX = result.x;
+			activeDragElement.item.mobileY = result.y;
+		} else {
+			activeDragElement.item.x = result.x;
+			activeDragElement.item.y = result.y;
+		}
+
+		// Handle horizontal swap
+		if (result.swapWithId && draggedOrigPos) {
+			const swapTarget = items.find((it) => it.id === result.swapWithId);
+			if (swapTarget) {
+				if (isMobile) {
+					swapTarget.mobileX = draggedOrigPos.mobileX;
+					swapTarget.mobileY = draggedOrigPos.mobileY;
+				} else {
+					swapTarget.x = draggedOrigPos.x;
+					swapTarget.y = draggedOrigPos.y;
+				}
+			}
+		}
+
+		fixCollisions(items, activeDragElement.item, isMobile);
+
+		// Auto-scroll near edges
+		const scrollZone = 100;
+		const scrollSpeed = 10;
+		const viewportHeight = window.innerHeight;
+
+		if (touch.clientY < scrollZone) {
+			const intensity = 1 - touch.clientY / scrollZone;
+			window.scrollBy(0, -scrollSpeed * intensity);
+		} else if (touch.clientY > viewportHeight - scrollZone) {
+			const intensity = 1 - (viewportHeight - touch.clientY) / scrollZone;
+			window.scrollBy(0, scrollSpeed * intensity);
+		}
+	}
+
+	function touchEnd() {
+		if (touchDragActive && activeDragElement.item) {
+			// Finalize position
+			fixCollisions(items, activeDragElement.item, isMobile);
+			onLayoutChanged();
+
+			activeDragElement.x = -1;
+			activeDragElement.y = -1;
+			activeDragElement.element = null;
+			activeDragElement.item = null;
+			activeDragElement.lastTargetId = null;
+			activeDragElement.lastPlacement = null;
+		}
+
+		touchDragActive = false;
+	}
+
+	// Only register non-passive touchmove when actively dragging
+	$effect(() => {
+		const el = container;
+		if (!touchDragActive || !el) return;
+
+		el.addEventListener('touchmove', touchMove, { passive: false });
+		return () => {
+			el.removeEventListener('touchmove', touchMove);
+		};
+	});
+
 	let linkValue = $state('');
 
-	function addLink(url: string) {
+	function addLink(url: string, specificCardDef?: CardDefinition) {
 		let link = validateLink(url);
 		if (!link) {
 			toast.error('invalid link');
 			return;
 		}
 		let item = createEmptyCard(data.page);
+
+		if (specificCardDef?.onUrlHandler?.(link, item)) {
+			item.cardType = specificCardDef.type;
+			newItem.item = item;
+			saveNewItem();
+			toast(specificCardDef.name + ' added!');
+			return;
+		}
 
 		for (const cardDef of AllCardDefinitions.toSorted(
 			(a, b) => (b.urlHandlerPriority ?? 0) - (a.urlHandlerPriority ?? 0)
@@ -383,10 +841,6 @@
 				toast(cardDef.name + ' added!');
 				break;
 			}
-		}
-
-		if (linkValue === url) {
-			linkValue = '';
 		}
 	}
 
@@ -489,6 +943,8 @@
 			compactItems(items, false);
 			compactItems(items, true);
 		}
+
+		onLayoutChanged();
 
 		await tick();
 
@@ -625,6 +1081,8 @@
 		compactItems(items, false);
 		compactItems(items, true);
 
+		onLayoutChanged();
+
 		await tick();
 
 		scrollToItem(item, isMobile, container);
@@ -644,7 +1102,7 @@
 		target.value = '';
 	}
 
-	// $inspect(items);
+	let showCardCommand = $state(false);
 </script>
 
 <svelte:body
@@ -676,13 +1134,29 @@
 <Account {data} />
 
 <Context {data}>
-	{#if !dev}
-		<div
-			class="bg-base-200 dark:bg-base-800 fixed inset-0 z-50 inline-flex h-full w-full items-center justify-center p-4 text-center lg:hidden"
-		>
-			Editing on mobile is not supported yet. Please use a desktop browser.
-		</div>
-	{/if}
+	<CardCommand
+		bind:open={showCardCommand}
+		onselect={(cardDef: CardDefinition) => {
+			if (cardDef.type === 'image') {
+				const input = document.getElementById('image-input') as HTMLInputElement;
+				if (input) {
+					input.click();
+					return;
+				}
+			} else if (cardDef.type === 'video') {
+				const input = document.getElementById('video-input') as HTMLInputElement;
+				if (input) {
+					input.click();
+					return;
+				}
+			} else {
+				newCard(cardDef.type);
+			}
+		}}
+		onlink={(url, cardDef) => {
+			addLink(url, cardDef);
+		}}
+	/>
 
 	<Controls bind:data />
 
@@ -732,9 +1206,17 @@
 			]}
 		>
 			<div class="pointer-events-none"></div>
-			<!-- svelte-ignore a11y_no_static_element_interactions -->
+			<!-- svelte-ignore a11y_no_static_element_interactions a11y_click_events_have_key_events -->
 			<div
 				bind:this={container}
+				onclick={(e) => {
+					// Deselect when tapping empty grid space
+					if (e.target === e.currentTarget || !(e.target as HTMLElement)?.closest?.('.card')) {
+						selectedCardId = null;
+					}
+				}}
+				ontouchstart={touchStart}
+				ontouchend={touchEnd}
 				ondragover={(e) => {
 					e.preventDefault();
 
@@ -809,21 +1291,7 @@
 				}}
 				ondragend={async (e) => {
 					e.preventDefault();
-					const cell = getDragXY(e);
-					if (!cell) return;
-
-					if (activeDragElement.item) {
-						if (isMobile) {
-							activeDragElement.item.mobileX = cell.x;
-							activeDragElement.item.mobileY = cell.y;
-						} else {
-							activeDragElement.item.x = cell.x;
-							activeDragElement.item.y = cell.y;
-						}
-
-						// Fix collisions and compact items after drag ends
-						fixCollisions(items, activeDragElement.item, isMobile);
-					}
+					// safari fix
 					activeDragElement.x = -1;
 					activeDragElement.y = -1;
 					activeDragElement.element = null;
@@ -845,6 +1313,7 @@
 							items = items.filter((it) => it !== item);
 							compactItems(items, false);
 							compactItems(items, true);
+							onLayoutChanged();
 						}}
 						onsetsize={(newW: number, newH: number) => {
 							if (isMobile) {
@@ -856,6 +1325,7 @@
 							}
 
 							fixCollisions(items, item, isMobile);
+							onLayoutChanged();
 						}}
 						ondragstart={(e: DragEvent) => {
 							const target = e.currentTarget as HTMLDivElement;
@@ -863,6 +1333,15 @@
 							activeDragElement.w = item.w;
 							activeDragElement.h = item.h;
 							activeDragElement.item = item;
+							// fix for div shadow during drag and drop
+							const transparent = document.createElement('div');
+							transparent.style.position = 'fixed';
+							transparent.style.top = '-1000px';
+							transparent.style.width = '1px';
+							transparent.style.height = '1px';
+							document.body.appendChild(transparent);
+							e.dataTransfer?.setDragImage(transparent, 0, 0);
+							requestAnimationFrame(() => transparent.remove());
 
 							// Store original positions of all items
 							activeDragElement.originalPositions = new Map();
@@ -890,16 +1369,6 @@
 		</div>
 	</div>
 
-	<Sidebar mobileOnly mobileClasses="lg:block p-4 gap-4">
-		<div class="flex flex-col gap-2">
-			{#each sidebarItems as cardDef (cardDef.type)}
-				<Button onclick={() => newCard(cardDef.type)} variant="ghost" class="w-full justify-start"
-					>{cardDef.sidebarButtonText}</Button
-				>
-			{/each}
-		</div>
-	</Sidebar>
-
 	<EditBar
 		{data}
 		bind:linkValue
@@ -911,9 +1380,60 @@
 		{save}
 		{handleImageInputChange}
 		{handleVideoInputChange}
+		showCardCommand={() => {
+			showCardCommand = true;
+		}}
+		{selectedCard}
+		{isMobile}
+		{isCoarse}
+		ondeselect={() => {
+			selectedCardId = null;
+		}}
+		ondelete={() => {
+			if (selectedCard) {
+				items = items.filter((it) => it.id !== selectedCardId);
+				compactItems(items, false);
+				compactItems(items, true);
+				onLayoutChanged();
+				selectedCardId = null;
+			}
+		}}
+		onsetsize={(w: number, h: number) => {
+			if (selectedCard) {
+				if (isMobile) {
+					selectedCard.mobileW = w;
+					selectedCard.mobileH = h;
+				} else {
+					selectedCard.w = w;
+					selectedCard.h = h;
+				}
+				fixCollisions(items, selectedCard, isMobile);
+				onLayoutChanged();
+			}
+		}}
 	/>
 
 	<Toaster />
 
 	<FloatingEditButton {data} />
+
+	{#if dev}
+		<div
+			class="bg-base-900/70 text-base-100 fixed top-2 right-2 z-50 flex items-center gap-2 rounded px-2 py-1 font-mono text-xs"
+		>
+			<span>editedOn: {editedOn}</span>
+			<button class="underline" onclick={addAllCardTypes}>+ all cards</button>
+			<input
+				bind:value={copyInput}
+				placeholder="handle/page"
+				class="bg-base-800 text-base-100 w-32 rounded px-1 py-0.5"
+				onkeydown={(e) => {
+					if (e.key === 'Enter') copyPageFrom();
+				}}
+			/>
+			<button class="underline" onclick={copyPageFrom} disabled={isCopying}>
+				{isCopying ? 'copying...' : 'copy'}
+			</button>
+		</div>
+	{/if}
 </Context>

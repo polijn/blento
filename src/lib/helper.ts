@@ -57,11 +57,35 @@ export function fixCollisions(
 	const pushDownCascade = (target: Item, blocker: Item) => {
 		// Keep x fixed always when pushing down
 		const fixedX = mobile ? target.mobileX : target.x;
+		const prevY = mobile ? target.mobileY : target.y;
 
 		// We need target to move just below `blocker`
 		const desiredY = mobile ? blocker.mobileY + blocker.mobileH : blocker.y + blocker.h;
 		if (!mobile && target.y < desiredY) target.y = desiredY;
 		if (mobile && target.mobileY < desiredY) target.mobileY = desiredY;
+
+		const newY = mobile ? target.mobileY : target.y;
+		const targetH = mobile ? target.mobileH : target.h;
+
+		// fall trough fix
+		if (newY > prevY) {
+			const prevBottom = prevY + targetH;
+			const newBottom = newY + targetH;
+			for (const it of items) {
+				if (it === target || it === movedItem || it === blocker) continue;
+				const itY = mobile ? it.mobileY : it.y;
+				const itH = mobile ? it.mobileH : it.h;
+				const itBottom = itY + itH;
+				if (itBottom <= prevBottom || itY >= newBottom) continue;
+				// horizontal overlap check
+				const hOverlap = mobile
+					? target.mobileX < it.mobileX + it.mobileW && target.mobileX + target.mobileW > it.mobileX
+					: target.x < it.x + it.w && target.x + target.w > it.x;
+				if (hOverlap) {
+					pushDownCascade(it, target);
+				}
+			}
+		}
 
 		// Now resolve any collisions that creates by pushing those items down first
 		// Repeat until target is clean.
